@@ -1,6 +1,8 @@
 #ifndef SDFS_DEFS_H
 #define SDFS_DEFS_H
 
-typedef char *string;
+/* SDFS DataTypes */
+typedef char *sdfs_str;
+typedef int sdfs_err;
 
 #endif
