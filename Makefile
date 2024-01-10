@@ -16,7 +16,7 @@ release: $(obj)
 release/obj/main_test.o: src/main_test.c
 	$(CC) src/main_test.c -o release/obj/main_test.o $(cflags) 
 
-run: $(obj)
+run: release 
 ifneq ("$(wildcard $(release_bin))","")
 	$(release_bin)
 else
@@ -45,7 +45,7 @@ debug: $(dbg)
 debug/obj/main_test.o: src/main_test.c
 	$(CCG) src/main_test.c -o debug/obj/main_test.o $(cflags) 
 
-run_debug: $(dbg)
+run_debug: debug
 ifneq ("$(wildcard $(debug_bin))","")
 	gdb $(debug_bin)
 else
