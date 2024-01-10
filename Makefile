@@ -3,19 +3,23 @@ libs = -lpthread
 
 #Release profile
 
-obj = release/obj/main_test.o 
+obj = release/obj/main_test.o release/obj/fslayer.o 
+hdr = include/fslayer.h include/sdfs_defs.h
 
 release_bin = release/sdfs_test
 CCX = gcc -o
 CC = gcc -c
 release_command = $(CCX) release/sdfs_test $(obj) $(ldflags) $(libs)
 
-release: $(obj)
+release: $(obj) $(hdr)
 	$(release_command)
 
 release/obj/main_test.o: src/main_test.c
 	$(CC) src/main_test.c -o release/obj/main_test.o $(cflags) 
 
+release/obj/fslayer.o: src/fslayer.c include/fslayer.h
+	$(CC) src/fslayer.c -o release/obj/fslayer.o $(cflags) 
+	
 run: release 
 ifneq ("$(wildcard $(release_bin))","")
 	$(release_bin)
@@ -32,19 +36,22 @@ rebuild:
 	
 # Debug profile
 
-dbg = debug/obj/main_test.o
+dbg = debug/obj/main_test.o debug/obj/fslayer.o
 
 debug_bin = debug/sdfs_test
 CCGX = gcc -g -DDEBUG -o
 CCG = gcc -g -DDEBUG -c
 debug_command = $(CCGX) debug/sdfs_test $(dbg) $(ldflags) $(libs)
 	
-debug: $(dbg)
+debug: $(dbg) $(hdr)
 	$(debug_command)
 
 debug/obj/main_test.o: src/main_test.c
 	$(CCG) src/main_test.c -o debug/obj/main_test.o $(cflags) 
 
+debug/obj/fslayer.o: src/fslayer.c include/fslayer.h
+	$(CC) src/fslayer.c -o debug/obj/fslayer.o $(cflags) 
+	
 run_debug: debug
 ifneq ("$(wildcard $(debug_bin))","")
 	gdb $(debug_bin)
