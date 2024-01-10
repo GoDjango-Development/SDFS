@@ -8,23 +8,28 @@ obj = release/obj/main_test.o
 release_bin = release/sdfs_test
 CCX = gcc -o
 CC = gcc -c
+release_command = $(CCX) release/sdfs_test $(obj) $(ldflags) $(libs)
 
-.PHONY: release run rebuild
+release: $(obj)
+	$(release_command)
 
-run: release 
+release/obj/main_test.o: src/main_test.c
+	$(CC) src/main_test.c -o release/obj/main_test.o $(cflags) 
+
+run: $(obj)
+ifneq ("$(wildcard $(release_bin))","")
 	$(release_bin)
+else
+	$(release_command)
+	$(release_bin)
+endif
+
+.PHONY: rebuild
 
 rebuild: 
 	$(MAKE) clean
 	$(MAKE) release
 	
-release: $(obj)
-	$(CCX) release/sdfs_test $(obj) $(ldflags) $(libs)
-
-release/obj/main_test.o: src/main_test.c
-	$(CC) src/main_test.c -o release/obj/main_test.o $(cflags) 
-
-
 # Debug profile
 
 dbg = debug/obj/main_test.o
@@ -32,23 +37,31 @@ dbg = debug/obj/main_test.o
 debug_bin = debug/sdfs_test
 CCGX = gcc -g -DDEBUG -o
 CCG = gcc -g -DDEBUG -c
-	
-.PHONY: debug run_debug rebuild_debug
-
-run_debug: debug
-	gdb $(debug_bin)
-	
-rebuild_debug: 
-	$(MAKE) clean
-	$(MAKE) debug
+debug_command = $(CCGX) debug/sdfs_test $(dbg) $(ldflags) $(libs)
 	
 debug: $(dbg)
-	$(CCGX) debug/sdfs_test $(dbg) $(ldflags) $(libs)
+	$(debug_command)
 
 debug/obj/main_test.o: src/main_test.c
 	$(CCG) src/main_test.c -o debug/obj/main_test.o $(cflags) 
 
+run_debug: $(dbg)
+ifneq ("$(wildcard $(debug_bin))","")
+	gdb $(debug_bin)
+else
+	$(debug_command)
+	gdb $(debug_bin)
+endif
+
+.PHONY: rebuild_debug
+	
+rebuild_debug: 
+	$(MAKE) clean
+	$(MAKE) debug
+
 #Others rules
+
+.PHONY: prepare clean
 
 prepare:
 	mkdir -p debug release debug/obj release/obj
