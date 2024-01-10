@@ -10,5 +10,6 @@
 
 void test(void);
 int sdfs_fsmkfile(sdfs_str path);
+void sdfs_fserrtomsg(sdfs_err err, sdfs_str str);
 
 #endif
