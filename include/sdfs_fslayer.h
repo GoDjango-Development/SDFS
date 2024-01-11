@@ -3,13 +3,12 @@
 
 #include <sdfs_defs.h>
 
-/* FS Layer error definitions */
+/* fs layer error definitions */
 
-#define SDFS_FSSUCCESS 0
-#define SDFS_FSEEXIST 1
+#define SDFS_EEXIST 2
+#define SDFS_EACCESS 3
 
-void test(void);
-int sdfs_fsmkfile(sdfs_str path);
-void sdfs_fserrtomsg(sdfs_err err, sdfs_str str);
+sdfs_err sdfs_mkfile(sdfs_str path);
+void sdfs_etomsg(sdfs_err err, sdfs_str str);
 
 #endif
