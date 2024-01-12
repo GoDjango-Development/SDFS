@@ -5,7 +5,8 @@
 #define SDFS_SUCCESS 0
 #define SDFS_ERROR 1
 
-#define SDFS_SUCCESSMSG "sdfs: operation compleated"
+/* global error messages definitions */
+#define SDFS_SUCCESSMSG "sdfs: operation completed"
 #define SDFS_ERRORMSG "sdfs: operation failure"
 
 /* sdfs datatypes */

@@ -2,28 +2,48 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <unistd.h>
 
+/* error messages definitions */
 #define SDFS_EEXISTMSG "fs layer: file already exist"
 #define SDFS_EACCESSMSG "fs layer: invalid access attempt"
 
+/* file creation function */
 sdfs_err sdfs_mkfile(sdfs_str path)
 {
     int fd = open(path, O_CREAT | O_EXCL, S_IRWXU);
-    if (fd == -1)
+    if (fd == -1) {
+        close(fd);
         switch (errno) {
             case EACCES:
                 return SDFS_EACCESS;
-                break;
             case EEXIST:
                 return SDFS_EEXIST;
-                break;
             default:
                 return SDFS_ERROR;
-                break;
         }
+    }
+    close(fd);
     return SDFS_SUCCESS;
 }
 
+/* file deletion function */
+sdfs_err sdfs_rmfile(sdfs_str path)
+{
+    if (unlink(path) == -1)
+        switch (errno) {
+            case EACCES:
+                return SDFS_EACCESS;
+            case ENOENT:
+                return SDFS_ENOENT;
+            default:
+                return SDFS_ERROR;
+        }
+        
+    return SDFS_SUCCESS;
+}
+
+/* integer error number to string message */
 void sdfs_etomsg(sdfs_err err, sdfs_str str)
 {
     switch (err) {
