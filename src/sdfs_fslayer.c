@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 /* error messages definitions */
 #define SDFS_EEXISTMSG "fs layer: file already exist"
@@ -24,6 +25,20 @@ sdfs_err sdfs_mkfile(sdfs_str path)
         }
     }
     close(fd);
+    return SDFS_SUCCESS;
+}
+
+/* directory creation function */
+sdfs_err sdfs_mkdir(sdfs_str path)
+{
+    switch (mkdir(path, S_IRWXU)) {
+        case EACCES:
+            return SDFS_EACCESS;
+        case EEXIST:
+            return SDFS_EEXIST;
+        default:
+            return SDFS_ERROR;
+    }
     return SDFS_SUCCESS;
 }
 
