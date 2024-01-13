@@ -42,8 +42,8 @@ sdfs_err sdfs_mkdir(sdfs_str path)
     return SDFS_SUCCESS;
 }
 
-/* file deletion function */
-sdfs_err sdfs_rmfile(sdfs_str path)
+/* file and directory deletion function */
+sdfs_err sdfs_rment(sdfs_str path)
 {
     if (unlink(path) == -1)
         switch (errno) {
