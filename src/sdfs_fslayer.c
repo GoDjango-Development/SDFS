@@ -65,7 +65,7 @@ sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
 {
     int fd = open(path, O_RDONLY);
     int64_t rb;
-    if (fd) {
+    if (fd != -1) {
         if (lseek(fd, SEEK_SET, offset) == -1) {
             close(fd);
             return SDFS_EIO;
@@ -73,11 +73,35 @@ sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
         do
             rb = read(fd, buf, len);
         while (rb == -1 && errno == EINTR);
-        if (rb == -1)
-            rb = SDFS_EIO;
         close(fd);
     }
-    return rb;
+    if (rb == -1)
+        return SDFS_EIO;
+    else
+        return rb;
+}
+
+/* this function may return the number of bytes written or n <= -1. n <= -1 meas
+ * that an error has occured */
+sdfs_int64 sdfs_writeblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
+    sdfs_int64 len)
+{
+    int fd = open(path, O_WRONLY);
+    int64_t wb;
+    if (fd != 1) {
+        if (lseek(fd, SEEK_SET, offset) == -1) {
+            close(fd);
+            return SDFS_EIO;
+        }
+        do
+            wb = write(fd, buf, len);
+        while (wb == -1 && errno == EINTR);
+        close(fd);
+    }
+    if (wb == -1)
+        return SDFS_EIO;
+    else
+        return wb;
 }
 
 /* integer error number to string message */
