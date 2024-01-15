@@ -18,22 +18,22 @@
 typedef struct stat *sdfs_pstat;
 
 /* file creation function */
-sdfs_err sdfs_mkfile(sdfs_str path);
+sdfs_err sdfs_mkfile(const sdfs_str path);
 /* directory creation function */
-sdfs_err sdfs_mkdir(sdfs_str path);
+sdfs_err sdfs_mkdir(const sdfs_str path);
 /* file deletion function */
-sdfs_err sdfs_rmfile(sdfs_str path);
+sdfs_err sdfs_rmfile(const sdfs_str path);
 /* directory deletion function */
-sdfs_err sdfs_rmdir(sdfs_str path);
+sdfs_err sdfs_rmdir(const sdfs_str path);
 /* read byte block from a file */
-sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
+sdfs_int64 sdfs_readblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
 /* write byte block to a file */
-sdfs_int64 sdfs_writeblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
+sdfs_int64 sdfs_writeblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
 /* get file or directory statistic */
 sdfs_err sdfs_stat(const sdfs_str path, sdfs_pstat stat_obj);
 /* integer error number to string message */
-void sdfs_etomsg(sdfs_err err, sdfs_str str);
+void sdfs_etomsg(const sdfs_err err, sdfs_str str);
 
 #endif
