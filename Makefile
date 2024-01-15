@@ -50,7 +50,7 @@ debug/obj/main_test.o: src/main_test.c
 	$(CCG) src/main_test.c -o debug/obj/main_test.o $(cflags) 
 
 debug/obj/sdfs_fslayer.o: src/sdfs_fslayer.c include/sdfs_fslayer.h
-	$(CC) src/sdfs_fslayer.c -o debug/obj/sdfs_fslayer.o $(cflags) 
+	$(CCG) src/sdfs_fslayer.c -o debug/obj/sdfs_fslayer.o $(cflags) 
 	
 run_debug: debug
 ifneq ("$(wildcard $(debug_bin))","")
