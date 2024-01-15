@@ -5,10 +5,12 @@
 
 /* fs layer error definitions */
 
-#define SDFS_EEXIST SDFS_ERROR + -2
-#define SDFS_EACCESS SDFS_ERROR + -3
-#define SDFS_ENOENT SDFS_ERROR + -4
-#define SDFS_EIO SDFS_ERROR + -5
+#define SDFS_FSSUCCESS SDFS_SUCCESS
+#define SDFS_FSERROR SDFS_ERROR + -1
+#define SDFS_FSEEXIST SDFS_ERROR + -2
+#define SDFS_FSEACCESS SDFS_ERROR + -3
+#define SDFS_FSENOENT SDFS_ERROR + -4
+#define SDFS_FSEIO SDFS_ERROR + -5
 
 /* file creation function */
 sdfs_err sdfs_mkfile(sdfs_str path);
