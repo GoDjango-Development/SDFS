@@ -76,6 +76,28 @@ void sdfs_etomsg(sdfs_err err, sdfs_str str)
     }
 }
 
+/* this function may return the block of byte read or n <= -1. n <= -1 meas that
+ * an error has occured */
+sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
+    sdfs_int64 len)
+{
+    int fd = open(path, O_RDONLY);
+    int64_t rb;
+    if (fd) {
+        if (lseek(fd, SEEK_SET, offset) == -1) {
+            close(fd);
+            return SDFS_EIO;
+        }
+        do
+            rb = read(fd, buf, len);
+        while (rb == -1 && errno == EINTR);
+        if (rb == -1)
+            rb = SDFS_EIO;
+        close(fd);
+    }
+    return rb;
+}
+
 /* file and directory deletion function */
 static sdfs_err sdfs_rment(sdfs_str path)
 {
