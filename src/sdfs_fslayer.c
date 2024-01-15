@@ -8,6 +8,7 @@
 /* error messages definitions */
 #define SDFS_EEXISTMSG "fs layer: file already exist"
 #define SDFS_EACCESSMSG "fs layer: invalid access attempt"
+#define SDFS_EIOMSG "fs layer: input/output error"
 
 /* file and directory deletion function */
 static sdfs_err sdfs_rment(sdfs_str path);
@@ -57,25 +58,6 @@ sdfs_err sdfs_rmdir(sdfs_str path)
     return sdfs_rment(path);
 }
 
-/* integer error number to string message */
-void sdfs_etomsg(sdfs_err err, sdfs_str str)
-{
-    switch (err) {
-        case SDFS_SUCCESS:
-            strcpy(str, SDFS_SUCCESSMSG);
-            break;
-        case SDFS_EEXIST:
-            strcpy(str, SDFS_EEXISTMSG);
-            break;
-        case SDFS_EACCESS:
-            strcpy(str, SDFS_EACCESSMSG);
-            break;
-        case SDFS_ERROR:
-            strcpy(str, SDFS_ERRORMSG);
-            break;
-    }
-}
-
 /* this function may return the block of byte read or n <= -1. n <= -1 meas that
  * an error has occured */
 sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
@@ -96,6 +78,27 @@ sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
         close(fd);
     }
     return rb;
+}
+
+/* integer error number to string message */
+void sdfs_etomsg(sdfs_err err, sdfs_str str)
+{
+    switch (err) {
+        case SDFS_SUCCESS:
+            strcpy(str, SDFS_SUCCESSMSG);
+            break;
+        case SDFS_EEXIST:
+            strcpy(str, SDFS_EEXISTMSG);
+            break;
+        case SDFS_EACCESS:
+            strcpy(str, SDFS_EACCESSMSG);
+            break;
+        case SDFS_ERROR:
+            strcpy(str, SDFS_ERRORMSG);
+            break;
+        case SDFS_EIO:
+            strcpy(str, SDFS_EIOMSG);
+    }
 }
 
 /* file and directory deletion function */
