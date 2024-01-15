@@ -15,7 +15,7 @@
 
 /* fs layer specific datatypes */
 
-typedef struct stat *sdfs_pstat;
+typedef struct stat sdfs_stat;
 
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path);
@@ -32,7 +32,7 @@ sdfs_int64 sdfs_readblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
 sdfs_int64 sdfs_writeblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
 /* get file or directory statistic */
-sdfs_err sdfs_stat(const sdfs_str path, sdfs_pstat stat_obj);
+sdfs_err sdfs_getstat(const sdfs_str path, sdfs_stat *stat_obj);
 /* integer error number to string message */
 void sdfs_etomsg(const sdfs_err err, sdfs_str str);
 

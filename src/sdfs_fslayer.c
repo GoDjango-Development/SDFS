@@ -128,15 +128,16 @@ sdfs_int64 sdfs_writeblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
 }
 
 /* get file or directory statistic */
-sdfs_err sdfs_stat(const sdfs_str path, sdfs_pstat stat_obj)
+sdfs_err sdfs_getstat(const sdfs_str path, sdfs_stat *stat_obj)
 {
     int rc = stat(path, stat_obj);
-    switch (rc) {
-        case ENOENT:
-            return SDFS_FSENOENT;
-        default:
-            return SDFS_FSERROR;
-    }
+    if (rc == -1)
+        switch (errno) {
+            case ENOENT:
+                return SDFS_FSENOENT;
+            default:
+                return SDFS_FSERROR;
+        }
     return SDFS_FSSUCCESS;
 }
 
