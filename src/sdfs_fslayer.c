@@ -76,7 +76,16 @@ sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
         close(fd);
     }
     if (rb == -1)
-        return SDFS_EIO;
+        switch (errno) {
+            case EACCES:
+                return SDFS_EACCESS;
+            case ENOENT:
+                return SDFS_ENOENT;
+            case EIO: EINVA:
+                return SDFS_EIO;
+            default:
+                return SDFS_ERROR;
+        }
     else
         return rb;
 }
@@ -99,7 +108,16 @@ sdfs_int64 sdfs_writeblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
         close(fd);
     }
     if (wb == -1)
-        return SDFS_EIO;
+        switch (errno) {
+            case EACCES:
+                return SDFS_EACCESS;
+            case ENOENT:
+                return SDFS_ENOENT;
+            case EIO: EINVA:
+                return SDFS_EIO;
+            default:
+                return SDFS_ERROR;
+        }
     else
         return wb;
 }
