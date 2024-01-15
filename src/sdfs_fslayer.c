@@ -127,6 +127,19 @@ sdfs_int64 sdfs_writeblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
     return wb;
 }
 
+/* get file or directory statistic */
+sdfs_err sdfs_stat(const sdfs_str path, sdfs_pstat stat_obj)
+{
+    int rc = stat(path, stat_obj);
+    switch (rc) {
+        case ENOENT:
+            return SDFS_FSENOENT;
+        default:
+            return SDFS_FSERROR;
+    }
+    return SDFS_FSSUCCESS;
+}
+
 /* integer error number to string message */
 void sdfs_etomsg(sdfs_err err, sdfs_str str)
 {
