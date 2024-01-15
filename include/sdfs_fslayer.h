@@ -12,6 +12,7 @@
 #define SDFS_FSEACCESS SDFS_ERROR + -3
 #define SDFS_FSENOENT SDFS_ERROR + -4
 #define SDFS_FSEIO SDFS_ERROR + -5
+#define SDFS_FSERENAME SDFS_ERROR + -6
 
 /* fs layer specific datatypes */
 
@@ -33,6 +34,8 @@ sdfs_int64 sdfs_writeblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
 /* get file or directory statistic */
 sdfs_err sdfs_getstat(const sdfs_str path, sdfs_stat *stat_obj);
+/* rename file or directory from oldname to newname */
+sdfs_err sdfs_rename(const sdfs_str old_path, const sdfs_str new_path);
 /* integer error number to string message */
 void sdfs_etomsg(const sdfs_err err, sdfs_str str);
 

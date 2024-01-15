@@ -4,14 +4,16 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <stdio.h>
 
 /* error messages definitions */
 #define MSG_SUCCESS "fs layer: operation completed"
 #define MSG_ERROR "fs layer: operation failure"
-#define MSG_EEXIST "fs layer: file already exist"
+#define MSG_EEXIST "fs layer: file or directory already exist"
 #define MSG_EACCESS "fs layer: invalid access attempt"
 #define MSG_EIO "fs layer: input/output error"
 #define MSG_ENOENT "fs layer: file or directory does not exist"
+#define MSG_ERENAME "fs layer: file or directory cannot be renamed"
 
 /* file and directory deletion function */
 static sdfs_err sdfs_rment(const sdfs_str path);
@@ -141,6 +143,25 @@ sdfs_err sdfs_getstat(const sdfs_str path, sdfs_stat *stat_obj)
     return SDFS_FSSUCCESS;
 }
 
+/* rename file or directory from oldname to newname */
+sdfs_err sdfs_rename(const sdfs_str old_path, const sdfs_str new_path)
+{
+    if (rename(old_path, new_path) == -1)
+        switch (errno) {
+            case EACCES:
+                return SDFS_FSEACCESS;
+            case EEXIST:
+                return SDFS_FSEEXIST;
+            case ENOENT:
+                return SDFS_FSENOENT;
+            case EINVAL: case EISDIR:
+                return SDFS_FSERENAME;
+            default:
+                return SDFS_FSERROR;
+        }
+    return SDFS_FSSUCCESS;
+}
+
 /* integer error number to string message */
 void sdfs_etomsg(const sdfs_err err, sdfs_str str)
 {
@@ -162,6 +183,9 @@ void sdfs_etomsg(const sdfs_err err, sdfs_str str)
             break;
         case SDFS_FSENOENT:
             strcpy(str, MSG_ENOENT);
+            break;
+        case SDFS_FSERENAME:
+            strcpy(str, MSG_ERENAME);
             break;
         default:
             strcpy(str, MSG_ERROR);
