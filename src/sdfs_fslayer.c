@@ -9,6 +9,9 @@
 #define SDFS_EEXISTMSG "fs layer: file already exist"
 #define SDFS_EACCESSMSG "fs layer: invalid access attempt"
 
+/* file and directory deletion function */
+static sdfs_err sdfs_rment(sdfs_str path);
+
 /* file creation function */
 sdfs_err sdfs_mkfile(sdfs_str path)
 {
@@ -42,20 +45,16 @@ sdfs_err sdfs_mkdir(sdfs_str path)
     return SDFS_SUCCESS;
 }
 
-/* file and directory deletion function */
-sdfs_err sdfs_rment(sdfs_str path)
+/* file deletion function */
+sdfs_err sdfs_rmfile(sdfs_str path)
 {
-    if (unlink(path) == -1)
-        switch (errno) {
-            case EACCES:
-                return SDFS_EACCESS;
-            case ENOENT:
-                return SDFS_ENOENT;
-            default:
-                return SDFS_ERROR;
-        }
-        
-    return SDFS_SUCCESS;
+    return sdfs_rment(path);
+}
+
+/* directory deletion function */
+sdfs_err sdfs_rmdir(sdfs_str path)
+{
+    return sdfs_rment(path);
 }
 
 /* integer error number to string message */
@@ -75,4 +74,19 @@ void sdfs_etomsg(sdfs_err err, sdfs_str str)
             strcpy(str, SDFS_ERRORMSG);
             break;
     }
+}
+
+/* file and directory deletion function */
+static sdfs_err sdfs_rment(sdfs_str path)
+{
+    if (unlink(path) == -1)
+        switch (errno) {
+            case EACCES:
+                return SDFS_EACCESS;
+            case ENOENT:
+                return SDFS_ENOENT;
+            default:
+                return SDFS_ERROR;
+        }
+    return SDFS_SUCCESS;
 }
