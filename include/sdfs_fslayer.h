@@ -21,6 +21,9 @@ sdfs_err sdfs_rmdir(sdfs_str path);
 /* read byte block from a file */
 sdfs_int64 sdfs_readblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
+/* write byte block to a file */
+sdfs_int64 sdfs_writeblk(sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
+    sdfs_int64 len);
 /* integer error number to string message */
 void sdfs_etomsg(sdfs_err err, sdfs_str str);
 
