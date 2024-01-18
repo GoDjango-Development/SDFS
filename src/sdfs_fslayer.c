@@ -1,3 +1,6 @@
+/* programmer: luis miguel
+ * email: lmdelbahia@gmail.com */
+
 #include <sdfs_fslayer.h>
 #include <string.h>
 #include <errno.h>

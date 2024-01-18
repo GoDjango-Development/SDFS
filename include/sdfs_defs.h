@@ -1,3 +1,6 @@
+/* programmer: luis miguel
+ * email: lmdelbahia@gmail.com */
+
 #ifndef SDFS_DEFS_H
 #define SDFS_DEFS_H
 

@@ -1,3 +1,6 @@
+/* programmer: luis miguel
+ * email: lmdelbahia@gmail.com */
+
 #ifndef FSLAYER_H
 #define FSLAYER_H
 
