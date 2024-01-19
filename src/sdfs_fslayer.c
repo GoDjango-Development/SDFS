@@ -190,10 +190,14 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
             }
             if (!dir) {
                 closedir(dd);
+                if (callback)
+                    callback(NULL, &ctrl);
                 return SDFS_FSSUCCESS;
             }
         } 
-    else
+    else {
+        if (callback)
+            callback(NULL, &ctrl);
         switch (errno) {
             case EACCES:
                 return SDFS_FSEACCESS;
@@ -202,8 +206,10 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
             default:
                 return SDFS_FSERROR;
         }
+    }
 }
 
+/* recursively directory list function */
 sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback)
 {
     DIR *dd;
