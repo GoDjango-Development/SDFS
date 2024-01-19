@@ -240,10 +240,10 @@ sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback)
                     strcmp(dir->d_name, ".."))
                     sdfs_listdir_r(nxpath, callback);
             } else {
-                if (callback)
-                    callback(NULL, &ctrl);
                 closedir(dd);
                 free(nxpath);
+                if (callback)
+                    callback(NULL, &ctrl);
                 return SDFS_FSSUCCESS;
             }
         } 
