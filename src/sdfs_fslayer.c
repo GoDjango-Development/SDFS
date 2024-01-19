@@ -174,6 +174,7 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
     dd = opendir(path);
     sdfs_dirst dir;
     SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
+    char cppath[PATH_MAX];
     if (dd)
         while (1) {
             dir = readdir(dd);
@@ -198,12 +199,6 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
             default:
                 return SDFS_FSERROR;
         }
-}
-
-/* recursively list directory function */
-sdfs_err sdfs_listdir_r(const sdfs_str path, sdfs_lsdir_clbk callback)
-{
-    
 }
 
 /* integer error number to string message */
