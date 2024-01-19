@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <sys/types.h>
 
 /* error messages definitions */
 #define MSG_SUCCESS "fs layer: operation completed"
@@ -17,6 +18,7 @@
 #define MSG_EIO "fs layer: input/output error"
 #define MSG_ENOENT "fs layer: file or directory does not exist"
 #define MSG_ERENAME "fs layer: file or directory cannot be renamed"
+#define MSG_ELISTDIR "fs layer: directory listing failed"
 
 /* file and directory deletion function */
 static sdfs_err sdfs_rment(const sdfs_str path);
@@ -165,6 +167,33 @@ sdfs_err sdfs_rename(const sdfs_str old_path, const sdfs_str new_path)
     return SDFS_FSSUCCESS;
 }
 
+/* list directory function */
+sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
+{
+    DIR *dd;
+    dd = opendir(path);
+    sdfs_dirst dir;
+    if (dd)
+        while (1) {
+            dir = readdir(dd);
+            if (callback)
+                callback(dir);
+            if (!dir) {
+                closedir(dd);
+                return SDFS_FSSUCCESS;
+            }
+        } 
+    else
+        switch (errno) {
+            case EACCES:
+                return SDFS_FSEACCESS;
+            case EMFILE: case ENFILE: case ENOMEM:
+                return SDFS_FSELISTDIR;
+            default:
+                return SDFS_FSERROR;
+        }
+}
+
 /* integer error number to string message */
 void sdfs_etomsg(const sdfs_err err, sdfs_str str)
 {
@@ -189,6 +218,9 @@ void sdfs_etomsg(const sdfs_err err, sdfs_str str)
             break;
         case SDFS_FSERENAME:
             strcpy(str, MSG_ERENAME);
+            break;
+        case SDFS_FSELISTDIR:
+            strcpy(str, MSG_ELISTDIR);
             break;
         default:
             strcpy(str, MSG_ERROR);
