@@ -28,14 +28,13 @@ enum SDFS_CLBKCTRL {
 /* fs layer specific datatypes */
 
 typedef struct stat sdfs_stat;
-typedef struct dirent *sdfs_dirst;
 typedef enum SDFS_CLBKCTRL SDFS_CLBKCTRL;
 
 /* fs layer callbacks prototypes */
 
 /* list directory function callback. each call represents a new entry in the
  * directory. dir pointer will be null in the last callback invokation */
-typedef void (*sdfs_lsdir_clbk)(sdfs_dirst dir, SDFS_CLBKCTRL *ctrl);
+typedef void (*sdfs_lsdir_clbk)(sdfs_str ent, SDFS_CLBKCTRL *ctrl);
 
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path);
@@ -59,5 +58,8 @@ sdfs_err sdfs_rename(const sdfs_str old_path, const sdfs_str new_path);
 sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback);
 /* integer error number to string message */
 void sdfs_etomsg(const sdfs_err err, sdfs_str str);
+
+
+sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback);
 
 #endif

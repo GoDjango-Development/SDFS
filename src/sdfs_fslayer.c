@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <malloc.h>
 
 /* error messages definitions */
 #define MSG_SUCCESS "fs layer: operation completed"
@@ -172,14 +173,16 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
 {
     DIR *dd;
     dd = opendir(path);
-    sdfs_dirst dir;
+    struct dirent *dir;
     SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
-    char cppath[PATH_MAX];
     if (dd)
         while (1) {
             dir = readdir(dd);
             if (callback) {
-                callback(dir, &ctrl);
+                if (dir)
+                    callback(dir->d_name, &ctrl);
+                else
+                    callback(NULL, &ctrl);
                 if (ctrl == SDFS_CLBKCTRL_STOP) {
                     closedir(dd);
                     return SDFS_FSSUCCESS;   
@@ -199,6 +202,58 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
             default:
                 return SDFS_FSERROR;
         }
+}
+
+sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback)
+{
+    DIR *dd;
+    dd = opendir(path);
+    struct dirent *dir;
+    SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
+    char *nxpath = malloc(PATH_MAX);
+    if (!nxpath) {
+        if (callback)
+            callback(NULL, &ctrl);
+        return SDFS_FSELISTDIR;
+    }
+    if (dd)
+        while (1) {
+            dir = readdir(dd);
+            if (dir) {
+                strcpy(nxpath , path);
+                strcat(nxpath, "/");
+                strcat(nxpath, dir->d_name);
+                if (callback) 
+                    callback(nxpath, &ctrl);
+                if (ctrl == SDFS_CLBKCTRL_STOP) {
+                    closedir(dd);
+                    free(nxpath);
+                    return SDFS_FSSUCCESS;   
+                }
+                if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
+                    strcmp(dir->d_name, ".."))
+                    sdfs_listdir_r(nxpath, callback);
+            } else {
+                if (callback)
+                    callback(NULL, &ctrl);
+                closedir(dd);
+                free(nxpath);
+                return SDFS_FSSUCCESS;
+            }
+        } 
+    else {
+        free(nxpath);
+        if (callback)
+            callback(NULL, &ctrl);
+        switch (errno) {
+            case EACCES:
+                return SDFS_FSEACCESS;
+            case EMFILE: case ENFILE: case ENOMEM:
+                return SDFS_FSELISTDIR;
+            default:
+                return SDFS_FSERROR;
+        }
+    }
 }
 
 /* integer error number to string message */
