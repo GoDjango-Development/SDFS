@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <malloc.h>
+#include <stdlib.h>
 
 /* error messages definitions */
 #define MSG_SUCCESS "fs layer: operation completed"
@@ -210,41 +211,39 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
 }
 
 /* recursively directory list function */
-sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback)
+sdfs_err sdfs_listdir_r(sdfs_str path, lsdir_mtsafe *mtsafe, 
+    sdfs_lsdir_clbk callback)
 {
     DIR *dd;
     dd = opendir(path);
     struct dirent *dir;
     SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
-    sdfs_err rc;
-    static char nxpath[PATH_MAX];
-    if (!nxpath) {
-        if (callback)
-            callback(NULL, &ctrl);
-        return SDFS_FSELISTDIR;
-    }
     if (dd)
         while (1) {
             dir = readdir(dd);
             if (dir) {
-                strcpy(nxpath , path);
-                strcat(nxpath, "/");
-                strcat(nxpath, dir->d_name);
-                if (callback) 
-                    callback(nxpath, &ctrl);
+                strcpy(mtsafe->nxpath , path);
+                strcat(mtsafe->nxpath, "/");
+                strcat(mtsafe->nxpath, dir->d_name);
+                if (callback) {
+                    realpath(mtsafe->nxpath, mtsafe->canonpath);
+                    callback(mtsafe->canonpath, &ctrl);
+                }
                 if (ctrl == SDFS_CLBKCTRL_STOP) {
                     closedir(dd);
                     return SDFS_FSSUCCESS;   
                 }
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, ".."))
-                    if (sdfs_listdir_r(nxpath, callback) == SDFS_FSELISTDIR) {
+                    if (sdfs_listdir_r(mtsafe->nxpath, mtsafe, callback) ==
+                        SDFS_FSELISTDIR) {
                         closedir(dd);
                         if (callback)
                             callback(NULL, &ctrl);
                         return SDFS_FSELISTDIR;   
                     }
-                nxpath[strlen(nxpath) - strlen(dir->d_name) - 1] = '\0';
+                mtsafe->nxpath[strlen(mtsafe->nxpath) - strlen(dir->d_name) -
+                    1] = '\0';
             } else {
                 closedir(dd);
                 if (callback)

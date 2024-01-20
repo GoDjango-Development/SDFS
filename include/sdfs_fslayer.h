@@ -25,16 +25,24 @@ enum SDFS_CLBKCTRL {
     SDFS_CLBKCTRL_STOP, SDFS_CLBKCTRL_CONT
 };
 
+/* fs layer strcutres */
+
+struct lsdir_mtsafe {
+    char nxpath[PATH_MAX];
+    char canonpath[PATH_MAX];
+};
+
 /* fs layer specific datatypes */
 
 typedef struct stat sdfs_stat;
 typedef enum SDFS_CLBKCTRL SDFS_CLBKCTRL;
+typedef struct lsdir_mtsafe lsdir_mtsafe;
 
 /* fs layer callbacks prototypes */
 
 /* list directory function callback. each call represents a new entry in the
  * directory. dir pointer will be null in the last callback invokation */
-typedef void (*sdfs_lsdir_clbk)(sdfs_str ent, SDFS_CLBKCTRL *ctrl);
+typedef void (*sdfs_lsdir_clbk)(const sdfs_str ent, SDFS_CLBKCTRL *ctrl);
 
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path);
@@ -59,6 +67,7 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback);
 /* integer error number to string message */
 void sdfs_etomsg(const sdfs_err err, sdfs_str str);
 /* recursively directory list function */
-sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback);
+sdfs_err sdfs_listdir_r(sdfs_str path, lsdir_mtsafe *mtsafe, 
+    sdfs_lsdir_clbk callback);
 
 #endif
