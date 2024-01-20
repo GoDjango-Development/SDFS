@@ -211,39 +211,46 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
 }
 
 /* recursively directory list function */
-sdfs_err sdfs_listdir_r(sdfs_str path, lsdir_mtsafe *mtsafe, 
+sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
     sdfs_lsdir_clbk callback)
 {
-    DIR *dd;
-    dd = opendir(path);
+    DIR *dd;    
+    if (!mtsafe->init) {
+        if (!realpath(path, mtsafe->canonpath))
+            return SDFS_FSELISTDIR;
+        if (!strcmp(mtsafe->canonpath, "/")) {
+            dd = opendir(mtsafe->canonpath);
+            mtsafe->canonpath[0] = '\0';
+        } else
+            dd = opendir(mtsafe->canonpath);
+        mtsafe->init = 1;
+    } else 
+        dd = opendir(mtsafe->canonpath);
     struct dirent *dir;
     SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
     if (dd)
         while (1) {
             dir = readdir(dd);
             if (dir) {
-                strcpy(mtsafe->nxpath , path);
-                strcat(mtsafe->nxpath, "/");
-                strcat(mtsafe->nxpath, dir->d_name);
-                if (callback) {
-                    realpath(mtsafe->nxpath, mtsafe->canonpath);
+                strcat(mtsafe->canonpath, "/");
+                strcat(mtsafe->canonpath, dir->d_name);
+                if (callback)
                     callback(mtsafe->canonpath, &ctrl);
-                }
                 if (ctrl == SDFS_CLBKCTRL_STOP) {
                     closedir(dd);
                     return SDFS_FSSUCCESS;   
                 }
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, ".."))
-                    if (sdfs_listdir_r(mtsafe->nxpath, mtsafe, callback) ==
+                    if (sdfs_listdir_r(mtsafe->canonpath, mtsafe, callback) ==
                         SDFS_FSELISTDIR) {
                         closedir(dd);
                         if (callback)
                             callback(NULL, &ctrl);
                         return SDFS_FSELISTDIR;   
                     }
-                mtsafe->nxpath[strlen(mtsafe->nxpath) - strlen(dir->d_name) -
-                    1] = '\0';
+                mtsafe->canonpath[strlen(mtsafe->canonpath) - 
+                    strlen(dir->d_name) - 1] = '\0';
             } else {
                 closedir(dd);
                 if (callback)

@@ -28,8 +28,8 @@ enum SDFS_CLBKCTRL {
 /* fs layer strcutres */
 
 struct lsdir_mtsafe {
-    char nxpath[PATH_MAX];
     char canonpath[PATH_MAX];
+    int init;
 };
 
 /* fs layer specific datatypes */
