@@ -216,6 +216,7 @@ sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback)
     dd = opendir(path);
     struct dirent *dir;
     SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
+    sdfs_err rc;
     static char nxpath[PATH_MAX];
     if (!nxpath) {
         if (callback)
@@ -237,7 +238,12 @@ sdfs_err sdfs_listdir_r(sdfs_str path, sdfs_lsdir_clbk callback)
                 }
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, ".."))
-                    sdfs_listdir_r(nxpath, callback);
+                    if (sdfs_listdir_r(nxpath, callback) == SDFS_FSELISTDIR) {
+                        closedir(dd);
+                        if (callback)
+                            callback(NULL, &ctrl);
+                        return SDFS_FSELISTDIR;   
+                    }
                 nxpath[strlen(nxpath) - strlen(dir->d_name) - 1] = '\0';
             } else {
                 closedir(dd);
