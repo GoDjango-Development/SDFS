@@ -64,10 +64,10 @@ sdfs_err sdfs_getstat(const sdfs_str path, sdfs_stat *stat_obj);
 sdfs_err sdfs_rename(const sdfs_str old_path, const sdfs_str new_path);
 /* list directory function */
 sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback);
-/* integer error number to string message */
-void sdfs_etomsg(const sdfs_err err, sdfs_str str);
 /* recursively directory list function */
 sdfs_err sdfs_listdir_r(sdfs_str path, lsdir_mtsafe *mtsafe, 
     sdfs_lsdir_clbk callback);
+/* integer error number to string message */
+void sdfs_etomsg(const sdfs_err err, sdfs_str str);
 
 #endif
