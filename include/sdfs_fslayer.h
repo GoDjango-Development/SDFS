@@ -21,7 +21,7 @@
 
 /* fs layer enumerations */
 
-enum SDFS_CLBKCTRL { 
+enum sdfs_clbkctrl { 
     SDFS_CLBKCTRL_STOP, SDFS_CLBKCTRL_CONT
 };
 
@@ -35,14 +35,14 @@ struct lsdir_mtsafe {
 /* fs layer specific datatypes */
 
 typedef struct stat sdfs_stat;
-typedef enum SDFS_CLBKCTRL SDFS_CLBKCTRL;
+typedef enum sdfs_clbkctrl sdfs_clbkctrl;
 typedef struct lsdir_mtsafe lsdir_mtsafe;
 
 /* fs layer callbacks prototypes */
 
 /* list directory function callback. each call represents a new entry in the
  * directory. dir pointer will be null in the last callback invokation */
-typedef void (*sdfs_lsdir_clbk)(const sdfs_str ent, SDFS_CLBKCTRL *ctrl);
+typedef void (*sdfs_lsdir_clbk)(const sdfs_str ent, sdfs_clbkctrl *ctrl);
 
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path);

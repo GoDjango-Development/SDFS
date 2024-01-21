@@ -175,7 +175,7 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
     DIR *dd;
     dd = opendir(path);
     struct dirent *dir;
-    SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
+    sdfs_clbkctrl ctrl = SDFS_CLBKCTRL_CONT;
     if (dd)
         while (1) {
             dir = readdir(dd);
@@ -227,7 +227,7 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
     } else 
         dd = opendir(mtsafe->canonpath);
     struct dirent *dir;
-    SDFS_CLBKCTRL ctrl = SDFS_CLBKCTRL_CONT;
+    sdfs_clbkctrl ctrl = SDFS_CLBKCTRL_CONT;
     if (dd)
         while (1) {
             dir = readdir(dd);
