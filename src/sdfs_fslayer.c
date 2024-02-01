@@ -273,7 +273,7 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
 }
 
 /* integer error number to string message */
-void sdfs_etomsg(const sdfs_err err, sdfs_str str)
+void sdfs_fsetomsg(const sdfs_err err, sdfs_str str)
 {
     switch (err) {
         case SDFS_FSSUCCESS:
