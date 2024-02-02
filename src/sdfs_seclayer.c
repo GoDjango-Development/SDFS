@@ -7,7 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <pwd.h>
 #include <sys/types.h>
 
@@ -114,25 +113,31 @@ static sdfs_err sdfs_lrcheck(sdfs_id id)
         free(buf);
         return SDFS_SECELOGIN;
     }
+    free(buf);
     /* check id->usr user existency in the unix system database */
     char *ptmp = strtok(tmp + 1, SC_USRSEP);
     struct passwd *pswd = getpwnam(ptmp);
-    if (!pswd) {
-        free(buf);
+    if (!pswd)
         return SDFS_SECELOGIN;
-    }
+    /* set to id->id and id->gid the effecive procces ids */
+    if (setegid(pswd->pw_gid) == -1)
+        return SDFS_SECELOGIN;
+    if (seteuid(pswd->pw_uid) == -1)
+        return SDFS_SECELOGIN;
     id->id = pswd->pw_uid;
     id->gid = pswd->pw_gid;
-    /* set to id->id and id->gid the effecive procces ids */
-    if (setegid(id->gid) == -1) {
-        free(buf);
-        return SDFS_SECELOGIN;
-    }
-    if (seteuid(id->id) == -1) {
-        free(buf);
-        return SDFS_SECELOGIN;
-    }
-    free(buf);
+    return SDFS_SECSUCCESS;
+}
+
+/* change file or directory access */
+sdfs_err sdfs_secchmod(sdfs_id id, sdfs_str path, sdfs_mode mode)
+{
+    mode_t oldm = umask(0);
+    if (!id || id->id == SC_INVUSR)
+        return SDFS_SECECHMOD;
+    if (chmod(path, mode) == -1)
+        return SDFS_SECECHMOD;
+    umask(oldm);
     return SDFS_SECSUCCESS;
 }
 
