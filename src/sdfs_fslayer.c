@@ -2,6 +2,7 @@
  * email: lmdelbahia@gmail.com */
 
 #include <sdfs_fslayer.h>
+#include <sdfs_util.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -82,9 +83,7 @@ sdfs_int64 sdfs_readblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
             close(fd);
             return SDFS_FSEIO;
         }
-        do
-            rb = read(fd, buf, len);
-        while (rb == -1 && errno == EINTR);
+        rb = sdfs_readchunk(fd, buf, len);
         close(fd);
     }
     if (rb == -1 || fd == -1)
@@ -115,9 +114,7 @@ sdfs_int64 sdfs_writeblk(const sdfs_str path, sdfs_buf buf, sdfs_int64 offset,
             close(fd);
             return SDFS_FSEIO;
         }
-        do
-            wb = write(fd, buf, len);
-        while (wb == -1 && errno == EINTR);
+        wb = sdfs_writechunk(fd, buf, len);
         close(fd);
     }
     if (wb == -1 || fd == -1)
