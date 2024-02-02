@@ -1,3 +1,6 @@
+/* programmer: luis miguel
+ * email: lmdelbahia@gmail.com */
+
 #include <sdfs_util.h>
 #include <unistd.h>
 #include <errno.h>

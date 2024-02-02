@@ -1,3 +1,6 @@
+/* programmer: luis miguel
+ * email: lmdelbahia@gmail.com */
+
 #ifndef SDFSUTIL_H
 #define SDFSUTIL_H
 
