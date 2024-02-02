@@ -13,8 +13,7 @@
 #define SDFS_SECSUCCESS SDFS_SUCCESS
 #define SDFS_SECERROR SDFS_ERROR + -1
 #define SDFS_SECEMEM SDFS_ERROR + -2
-#define SDFS_SECEUSR SDFS_ERROR + -3
-#define SDFS_SECELOGIN SDFS_ERROR + -4
+#define SDFS_SECELOGIN SDFS_ERROR + -3
 
 /* security layer specific datatypes */
 
@@ -31,5 +30,7 @@ sdfs_err sdfs_seclogin(sdfs_id id, sdfs_str usr, sdfs_str pwd);
 void sdfs_seclogout(sdfs_id id);
 /* finalize security layer */
 void sdfs_secfin(sdfs_id id);
+/* integer error number to string message */
+void sdfs_secetomsg(const sdfs_err err, sdfs_str str);
 
 #endif

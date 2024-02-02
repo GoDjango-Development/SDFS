@@ -11,6 +11,12 @@
 #include <pwd.h>
 #include <sys/types.h>
 
+/* error messages definitions */
+#define MSG_SUCCESS "security layer: operation completed"
+#define MSG_EMEM "security layer: no memory available"
+#define MSG_ELOGIN "security layer: user cannot be loged-in"
+#define MSG_ERROR "security layer: operation failure"
+
 #define SC_INVUSR -1
 #define SC_USRSEP ":"
 #define SC_USREND "\n"
@@ -128,4 +134,22 @@ static sdfs_err sdfs_lrcheck(sdfs_id id)
     }
     free(buf);
     return SDFS_SECSUCCESS;
+}
+
+/* integer error number to string message */
+void sdfs_secetomsg(const sdfs_err err, sdfs_str str)
+{
+    switch (err) {
+        case SDFS_SECSUCCESS:
+            strcpy(str, MSG_SUCCESS);
+            break;
+        case SDFS_SECEMEM:
+            strcpy(str, MSG_EMEM);
+            break;
+        case SDFS_SECELOGIN:
+            strcpy(str, MSG_ELOGIN);
+            break;
+        default:
+            strcpy(str, MSG_ERROR);
+    }
 }
