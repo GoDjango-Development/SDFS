@@ -9,7 +9,8 @@
 
 #define SDFS_SECSUCCESS SDFS_SUCCESS
 #define SDFS_SECERROR SDFS_ERROR + -1
-#define SDFS_SECMEM SDFS_ERROR + -2
+#define SDFS_SECEMEM SDFS_ERROR + -2
+#define SDFS_SECEUSR SDFS_ERROR + -3
 
 /* security layer specific datatypes */
 
@@ -19,8 +20,10 @@ typedef uint64_t sdfs_uid;
 typedef struct sdfs_id *sdfs_id;
 
 /* initialize security layer */
-sdfs_err init_seclayer(sdfs_id *id, sdfs_str usrfile, sdfs_str usr);
+sdfs_err sdfs_secinit(sdfs_id *id, sdfs_str usrfile);
+/* login function */
+sdfs_err sdfs_seclogin(sdfs_id id, sdfs_str usr, sdfs_str pwd);
 /* finalize security layer */
-void fin_seclayer(sdfs_id id);
+void sdfs_secfin(sdfs_id id);
 
 #endif
