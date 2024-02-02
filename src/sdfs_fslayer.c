@@ -29,7 +29,7 @@ static sdfs_err sdfs_rment(const sdfs_str path);
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path)
 {
-    int fd = open(path, O_CREAT | O_EXCL, S_IRWXU);
+    int fd = open(path, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
     if (fd == -1) {
         close(fd);
         switch (errno) {
