@@ -10,14 +10,14 @@
 
 /* fs layer error definitions */
 
-#define SDFS_FSSUCCESS SDFS_SUCCESS
-#define SDFS_FSERROR SDFS_ERROR + -1
-#define SDFS_FSEEXIST SDFS_ERROR + -2
-#define SDFS_FSEACCESS SDFS_ERROR + -3
-#define SDFS_FSENOENT SDFS_ERROR + -4
-#define SDFS_FSEIO SDFS_ERROR + -5
-#define SDFS_FSERENAME SDFS_ERROR + -6
-#define SDFS_FSELISTDIR SDFS_ERROR + -7
+#define SDFS_FSSUCCESS 0
+#define SDFS_FSERROR -1
+#define SDFS_FSEEXIST -2
+#define SDFS_FSEACCESS -3
+#define SDFS_FSENOENT -4
+#define SDFS_FSEIO -5
+#define SDFS_FSERENAME -6
+#define SDFS_FSELISTDIR -7
 
 /* fs layer enumerations */
 

@@ -11,11 +11,11 @@
 
 /* security layer error definitions */
 
-#define SDFS_SECSUCCESS SDFS_SUCCESS
-#define SDFS_SECERROR SDFS_ERROR + -1
-#define SDFS_SECEMEM SDFS_ERROR + -2
-#define SDFS_SECELOGIN SDFS_ERROR + -3
-#define SDFS_SECECHMOD SDFS_ERROR + -4
+#define SDFS_SECSUCCESS 0
+#define SDFS_SECERROR -1
+#define SDFS_SECEMEM -2
+#define SDFS_SECELOGIN -3
+#define SDFS_SECECHMOD -4
 
 /* security layer specific datatypes */
 
