@@ -179,13 +179,11 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
             dir = readdir(dd);
             if (callback) {
                 if (dir) {
-                    
                     strcpy(fpath, path);
                     strcat(fpath, "/");
                     strcat(fpath, dir->d_name);
                     callback(fpath, &ctrl);
-                } else
-                    callback(NULL, &ctrl);
+                }
                 if (ctrl == SDFS_CLBKCTRL_STOP) {
                     closedir(dd);
                     return SDFS_FSSUCCESS;   
@@ -193,14 +191,10 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
             }
             if (!dir) {
                 closedir(dd);
-                if (callback)
-                    callback(NULL, &ctrl);
                 return SDFS_FSSUCCESS;
             }
         } 
     else {
-        if (callback)
-            callback(NULL, &ctrl);
         switch (errno) {
             case EACCES:
                 return SDFS_FSEACCESS;
@@ -249,17 +243,12 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, ".."))
                     if (sdfs_listdir_r(mtsafe->canonpath, mtsafe, callback) !=
-                        SDFS_FSSUCCESS) {
-                        if (callback)
-                            callback(NULL, &ctrl);
+                        SDFS_FSSUCCESS)
                         mtsafe->err++;
-                    }
                 mtsafe->canonpath[strlen(mtsafe->canonpath) - 
                     strlen(dir->d_name) - 1] = '\0';
             } else {
                 closedir(dd);
-                if (callback)
-                    callback(NULL, &ctrl);
                 if (mtsafe->err)
                     return SDFS_FSELISTDIR;
                 else
@@ -267,8 +256,6 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
             }
         } 
     else {
-        if (callback)
-            callback(NULL, &ctrl);
         mtsafe->err++;
         switch (errno) {
             case EACCES:
