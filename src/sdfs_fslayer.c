@@ -172,14 +172,19 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback)
     DIR *dd;
     dd = opendir(path);
     struct dirent *dir;
+    char fpath[PATH_MAX];
     sdfs_clbkctrl ctrl = SDFS_CLBKCTRL_CONT;
     if (dd)
         while (1) {
             dir = readdir(dd);
             if (callback) {
-                if (dir)
-                    callback(dir->d_name, &ctrl);
-                else
+                if (dir) {
+                    
+                    strcpy(fpath, path);
+                    strcat(fpath, "/");
+                    strcat(fpath, dir->d_name);
+                    callback(fpath, &ctrl);
+                } else
                     callback(NULL, &ctrl);
                 if (ctrl == SDFS_CLBKCTRL_STOP) {
                     closedir(dd);
