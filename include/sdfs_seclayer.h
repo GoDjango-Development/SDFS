@@ -23,6 +23,7 @@ typedef uint64_t sdfs_uid;
 typedef mode_t sdfs_mode;
 
 /* obscure structure for user identity */
+
 typedef struct sdfs_id *sdfs_id;
 
 /* initialize security layer */
