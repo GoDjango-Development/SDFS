@@ -302,6 +302,25 @@ void sdfs_fsetomsg(const sdfs_err err, sdfs_str str)
     }
 }
 
+/* recursively create directory */
+sdfs_err sdfs_rmkdir(const sdfs_str path)
+{
+    char cpath[PATH_MAX];
+    strcpy(cpath, path);
+    char *pt = strtok(cpath, "/");
+    char dir[PATH_MAX];
+    strcpy(dir, "/");
+    while (pt) {
+        strcat(dir, "/");
+        strcat(dir, pt);
+        mkdir(dir, S_IRWXU);
+        pt = strtok(NULL, "/");
+    }
+    if (access(dir, F_OK))
+        return SDFS_FSENOENT;
+    return SDFS_FSSUCCESS;
+}
+    
 /* file or directory deletion function */
 static sdfs_err sdfs_rment(const sdfs_str path)
 {

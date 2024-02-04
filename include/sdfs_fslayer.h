@@ -67,6 +67,8 @@ sdfs_err sdfs_listdir(const sdfs_str path, sdfs_lsdir_clbk callback);
 /* recursively directory list function */
 sdfs_err sdfs_listdir_r(sdfs_str path, lsdir_mtsafe *mtsafe, 
     sdfs_lsdir_clbk callback);
+/* recursively create directory */
+sdfs_err sdfs_rmkdir(const sdfs_str path);
 /* integer error number to string message */
 void sdfs_fsetomsg(const sdfs_err err, sdfs_str str);
 
