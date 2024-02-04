@@ -18,6 +18,7 @@
 #define SDFS_FSEIO -5
 #define SDFS_FSERENAME -6
 #define SDFS_FSELISTDIR -7
+#define SDFS_FSEDIRNONEMPTY -8
 
 /* fs layer enumerations */
 
