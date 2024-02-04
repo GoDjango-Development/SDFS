@@ -30,6 +30,7 @@ enum sdfs_clbkctrl {
 struct lsdir_mtsafe {
     char canonpath[PATH_MAX];
     int init;
+    sdfs_err err;
 };
 
 /* fs layer specific datatypes */
@@ -69,6 +70,8 @@ sdfs_err sdfs_listdir_r(sdfs_str path, lsdir_mtsafe *mtsafe,
     sdfs_lsdir_clbk callback);
 /* recursively create directory */
 sdfs_err sdfs_rmkdir(const sdfs_str path);
+/* recursively try to remove directories */
+sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe);
 /* integer error number to string message */
 void sdfs_fsetomsg(const sdfs_err err, sdfs_str str);
 

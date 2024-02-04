@@ -213,6 +213,7 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
 {
     DIR *dd;    
     if (!mtsafe->init) {
+        mtsafe->err = 0;
         if (!realpath(path, mtsafe->canonpath))
             return SDFS_FSELISTDIR;
         if (!strcmp(mtsafe->canonpath, "/")) {
@@ -235,16 +236,18 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
                     callback(mtsafe->canonpath, &ctrl);
                 if (ctrl == SDFS_CLBKCTRL_STOP) {
                     closedir(dd);
-                    return SDFS_FSSUCCESS;   
+                    if (mtsafe->err)
+                        return SDFS_FSELISTDIR;
+                    else
+                        return SDFS_FSSUCCESS;
                 }
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, ".."))
-                    if (sdfs_listdir_r(mtsafe->canonpath, mtsafe, callback) ==
-                        SDFS_FSELISTDIR) {
-                        closedir(dd);
+                    if (sdfs_listdir_r(mtsafe->canonpath, mtsafe, callback) !=
+                        SDFS_FSSUCCESS) {
                         if (callback)
                             callback(NULL, &ctrl);
-                        return SDFS_FSELISTDIR;   
+                        mtsafe->err++;
                     }
                 mtsafe->canonpath[strlen(mtsafe->canonpath) - 
                     strlen(dir->d_name) - 1] = '\0';
@@ -252,12 +255,16 @@ sdfs_err sdfs_listdir_r(const sdfs_str path, lsdir_mtsafe *mtsafe,
                 closedir(dd);
                 if (callback)
                     callback(NULL, &ctrl);
-                return SDFS_FSSUCCESS;
+                if (mtsafe->err)
+                    return SDFS_FSELISTDIR;
+                else
+                    return SDFS_FSSUCCESS;
             }
         } 
     else {
         if (callback)
             callback(NULL, &ctrl);
+        mtsafe->err++;
         switch (errno) {
             case EACCES:
                 return SDFS_FSEACCESS;
@@ -321,6 +328,60 @@ sdfs_err sdfs_rmkdir(const sdfs_str path)
     return SDFS_FSSUCCESS;
 }
     
+sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe)
+{
+    DIR *dd;    
+    if (!mtsafe->init) {
+        if (!realpath(path, mtsafe->canonpath))
+            return SDFS_FSELISTDIR;
+        if (!strcmp(mtsafe->canonpath, "/")) {
+            dd = opendir(mtsafe->canonpath);
+            mtsafe->canonpath[0] = '\0';
+        } else
+            dd = opendir(mtsafe->canonpath);
+        mtsafe->init = 1;
+    } else 
+        dd = opendir(mtsafe->canonpath);
+    struct dirent *dir;
+    if (dd)
+        while (1) {
+            dir = readdir(dd);
+            if (dir) {
+                strcat(mtsafe->canonpath, "/");
+                strcat(mtsafe->canonpath, dir->d_name);
+               
+                if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
+                    strcmp(dir->d_name, "..")) {
+                    if (sdfs_rmdir_r(mtsafe->canonpath, mtsafe) ==
+                        SDFS_FSELISTDIR) {
+                        closedir(dd);
+                        return SDFS_FSELISTDIR;   
+                    }
+                } else if (dir->d_type != DT_DIR) {
+                    printf("deleting %s\n", mtsafe->canonpath);
+                    unlink(mtsafe->canonpath);
+                }
+                mtsafe->canonpath[strlen(mtsafe->canonpath) - 
+                    strlen(dir->d_name) - 1] = '\0';
+            } else {
+                printf("deleting %s\n", mtsafe->canonpath);
+                rmdir(mtsafe->canonpath);
+                closedir(dd);
+                return SDFS_FSSUCCESS;
+            }
+        } 
+    else {
+        switch (errno) {
+            case EACCES:
+                return SDFS_FSEACCESS;
+            case EMFILE: case ENFILE: case ENOMEM:
+                return SDFS_FSELISTDIR;
+            default:
+                return SDFS_FSERROR;
+        }
+    }
+}
+
 /* file or directory deletion function */
 static sdfs_err sdfs_rment(const sdfs_str path)
 {
