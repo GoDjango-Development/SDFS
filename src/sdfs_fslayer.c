@@ -22,7 +22,7 @@
 #define MSG_ENOENT "fs layer: file or directory does not exist"
 #define MSG_ERENAME "fs layer: file or directory cannot be renamed"
 #define MSG_ELISTDIR "fs layer: directory listing failed"
-#define MSG_EDIRNONEMPTY "fs layer: directory to remove is not empty"
+#define MSG_ERMDIR "fs layer: file or directory cannot be removed"
 
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path)
@@ -76,7 +76,7 @@ sdfs_err sdfs_rmfile(const sdfs_str path)
 sdfs_err sdfs_rmdir(const sdfs_str path)
 {
     if (rmdir(path) == -1)
-        return SDFS_FSEDIRNONEMPTY;
+        return SDFS_FSERMDIR;
     return SDFS_FSSUCCESS;
 }
 
@@ -301,8 +301,9 @@ sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe)
 {
     DIR *dd;    
     if (!mtsafe->init) {
+        mtsafe->err = 0;
         if (!realpath(path, mtsafe->canonpath))
-            return SDFS_FSELISTDIR;
+            return SDFS_FSERMDIR;
         if (!strcmp(mtsafe->canonpath, "/")) {
             dd = opendir(mtsafe->canonpath);
             mtsafe->canonpath[0] = '\0';
@@ -318,33 +319,33 @@ sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe)
             if (dir) {
                 strcat(mtsafe->canonpath, "/");
                 strcat(mtsafe->canonpath, dir->d_name);
-               
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, "..")) {
-                    if (sdfs_rmdir_r(mtsafe->canonpath, mtsafe) ==
-                        SDFS_FSELISTDIR) {
-                        closedir(dd);
-                        return SDFS_FSELISTDIR;   
-                    }
-                } else if (dir->d_type != DT_DIR) {
-                    printf("deleting %s\n", mtsafe->canonpath);
-                    unlink(mtsafe->canonpath);
-                }
+                    if (sdfs_rmdir_r(mtsafe->canonpath, mtsafe) !=
+                        SDFS_FSSUCCESS)
+                        mtsafe->err++;
+                } else if (dir->d_type != DT_DIR)
+                    if (unlink(mtsafe->canonpath) == -1)
+                        mtsafe->err++;
                 mtsafe->canonpath[strlen(mtsafe->canonpath) - 
                     strlen(dir->d_name) - 1] = '\0';
             } else {
-                printf("deleting %s\n", mtsafe->canonpath);
-                rmdir(mtsafe->canonpath);
+                if (rmdir(mtsafe->canonpath) == -1)
+                    mtsafe->err++;
                 closedir(dd);
-                return SDFS_FSSUCCESS;
+                if (mtsafe->err)
+                    return SDFS_FSERMDIR;
+                else
+                    return SDFS_FSSUCCESS;
             }
         } 
     else {
+        mtsafe->err++;
         switch (errno) {
             case EACCES:
                 return SDFS_FSEACCESS;
             case EMFILE: case ENFILE: case ENOMEM:
-                return SDFS_FSELISTDIR;
+                return SDFS_FSERMDIR;
             default:
                 return SDFS_FSERROR;
         }
@@ -379,8 +380,8 @@ void sdfs_fsetomsg(const sdfs_err err, sdfs_str str)
         case SDFS_FSELISTDIR:
             strcpy(str, MSG_ELISTDIR);
             break;
-        case SDFS_FSEDIRNONEMPTY:
-            strcpy(str, MSG_EDIRNONEMPTY);
+        case SDFS_FSERMDIR:
+            strcpy(str, MSG_ERMDIR);
             break;
         default:
             strcpy(str, MSG_ERROR);
