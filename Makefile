@@ -4,8 +4,9 @@ libs = -lpthread
 #Release profile
 
 obj = release/obj/main_test.o release/obj/sdfs_fslayer.o \
-	release/obj/sdfs_seclayer.o
-hdr = include/sdfs_fslayer.h include/sdfs_defs.h include/sdfs_seclayer.h
+	release/obj/sdfs_seclayer.o release/obj/sdfs_util.o
+hdr = include/sdfs_fslayer.h include/sdfs_defs.h include/sdfs_seclayer.h \
+	include/sdfs_util.h
 
 release_bin = release/sdfs_test
 CCX = gcc -o
@@ -24,6 +25,9 @@ release/obj/sdfs_fslayer.o: src/sdfs_fslayer.c include/sdfs_fslayer.h
 release/obj/sdfs_seclayer.o: src/sdfs_seclayer.c include/sdfs_seclayer.h
 	$(CC) src/sdfs_seclayer.c -o release/obj/sdfs_seclayer.o $(cflags)
 	
+release/obj/sdfs_util.o: src/sdfs_util.c include/sdfs_util.h
+	$(CC) src/sdfs_util.c -o release/obj/sdfs_util.o $(cflags)
+	
 run: release 
 ifneq ("$(wildcard $(release_bin))","")
 	$(release_bin)
@@ -40,7 +44,8 @@ rebuild:
 	
 # Debug profile
 
-dbg = debug/obj/main_test.o debug/obj/sdfs_fslayer.o debug/obj/sdfs_seclayer.o
+dbg = debug/obj/main_test.o debug/obj/sdfs_fslayer.o debug/obj/sdfs_seclayer.o \
+	debug/obj/sdfs_util.o
 
 debug_bin = debug/sdfs_test
 CCGX = gcc -g -DDEBUG -o
@@ -59,6 +64,9 @@ debug/obj/sdfs_fslayer.o: src/sdfs_fslayer.c include/sdfs_fslayer.h
 debug/obj/sdfs_seclayer.o: src/sdfs_seclayer.c include/sdfs_seclayer.h
 	$(CCG) src/sdfs_seclayer.c -o debug/obj/sdfs_seclayer.o $(cflags) 
 		
+debug/obj/sdfs_util.o: src/sdfs_util.c include/sdfs_util.h
+	$(CCG) src/sdfs_util.c -o debug/obj/sdfs_util.o $(cflags) 
+
 run_debug: debug
 ifneq ("$(wildcard $(debug_bin))","")
 	gdb $(debug_bin)
