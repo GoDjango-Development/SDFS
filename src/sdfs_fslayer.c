@@ -23,9 +23,6 @@
 #define MSG_ERENAME "fs layer: file or directory cannot be renamed"
 #define MSG_ELISTDIR "fs layer: directory listing failed"
 
-/* file and directory deletion function */
-static sdfs_err sdfs_rment(const sdfs_str path);
-
 /* file creation function */
 sdfs_err sdfs_mkfile(const sdfs_str path)
 {
@@ -62,13 +59,24 @@ sdfs_err sdfs_mkdir(const sdfs_str path)
 /* file deletion function */
 sdfs_err sdfs_rmfile(const sdfs_str path)
 {
-    return sdfs_rment(path);
+    if (unlink(path) == -1)
+        switch (errno) {
+            case EACCES:
+                return SDFS_FSEACCESS;
+            case ENOENT:
+                return SDFS_FSENOENT;
+            default:
+                return SDFS_FSERROR;
+        }
+    return SDFS_FSSUCCESS;
 }
 
 /* directory deletion function */
 sdfs_err sdfs_rmdir(const sdfs_str path)
 {
-    return sdfs_rment(path);
+    if (rmdir(path) == -1)
+        return SDFS_FSEDIRNONEMPTY;
+    return SDFS_FSSUCCESS;
 }
 
 /* this function may return the block of byte read or n <= -1. n <= -1 means
@@ -374,17 +382,3 @@ sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe)
     }
 }
 
-/* file or directory deletion function */
-static sdfs_err sdfs_rment(const sdfs_str path)
-{
-    if (unlink(path) == -1)
-        switch (errno) {
-            case EACCES:
-                return SDFS_FSEACCESS;
-            case ENOENT:
-                return SDFS_FSENOENT;
-            default:
-                return SDFS_FSERROR;
-        }
-    return SDFS_FSSUCCESS;
-}
