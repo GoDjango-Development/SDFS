@@ -2,6 +2,7 @@
  * email: lmdelbahia@gmail.com */
 
 #include <sdfs_seclayer.h>
+#include <sdfs_fslayer.h>
 #include <sdfs_util.h>
 #include <malloc.h>
 #include <string.h>
@@ -28,6 +29,7 @@ struct sdfs_id{
     sdfs_uid id;
     sdfs_uid gid;
     sdfs_char inv;
+    sdfs_err fserr;
 };
 
 /* login recheck */
@@ -141,20 +143,47 @@ sdfs_err sdfs_secchmod(sdfs_id id, sdfs_str path, sdfs_mode mode)
     return SDFS_SECSUCCESS;
 }
 
+/* execute fs layer operation */
+sdfs_err sdfs_runop(sdfs_id id, sdfs_secop op, sdfs_buf buf)
+{
+    if (!id || id->id == SC_INVUSR)
+        return SDFS_SECELOGIN;
+    
+    switch (op) {
+        case SDFS_SECOP_MKFILE:
+            if ((id->fserr = sdfs_mkfile(buf)) != SDFS_FSSUCCESS)
+                return SDFS_SECERROR;
+            break;
+    }
+    return SDFS_SECSUCCESS;
+}
+
+/* get fs layer last error */
+sdfs_err sdfs_getfserr(sdfs_id id)
+{
+    
+}
+
+/* get fs layer last error message */
+sdfs_err sdfs_getfsmsg(sdfs_id id)
+{
+    
+}
+
 /* integer error number to string message */
-void sdfs_secetomsg(const sdfs_err err, sdfs_str str)
+void sdfs_secetomsg(const sdfs_err err, const sdfs_pstr str)
 {
     switch (err) {
         case SDFS_SECSUCCESS:
-            strcpy(str, MSG_SUCCESS);
+            *str = MSG_SUCCESS;
             break;
         case SDFS_SECEMEM:
-            strcpy(str, MSG_EMEM);
+            *str = MSG_EMEM;
             break;
         case SDFS_SECELOGIN:
-            strcpy(str, MSG_ELOGIN);
+            *str = MSG_ELOGIN;
             break;
         default:
-            strcpy(str, MSG_ERROR);
+            *str = MSG_ERROR;
     }
 }

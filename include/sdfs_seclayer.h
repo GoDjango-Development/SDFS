@@ -17,10 +17,16 @@
 #define SDFS_SECELOGIN -3
 #define SDFS_SECECHMOD -4
 
+/* security layer operation enumeration */
+enum sdfs_secop {
+    SDFS_SECOP_MKFILE
+};
+
 /* security layer specific datatypes */
 
 typedef uint64_t sdfs_uid;
 typedef mode_t sdfs_mode;
+typedef enum sdfs_secop sdfs_secop;
 
 /* obscure structure for user identity */
 
@@ -36,7 +42,13 @@ void sdfs_seclogout(sdfs_id id);
 void sdfs_secfin(sdfs_id id);
 /* change file or directory access */
 sdfs_err sdfs_secchmod(sdfs_id id, sdfs_str path, sdfs_mode mode);
+/* execute fs layer operation */
+sdfs_err sdfs_runop(sdfs_id id, sdfs_secop op, sdfs_buf buf);
+/* get fs layer last error */
+sdfs_err sdfs_getfserr(sdfs_id id);
+/* get fs layer last error message */
+sdfs_err sdfs_getfsmsg(sdfs_id id);
 /* integer error number to string message */
-void sdfs_secetomsg(const sdfs_err err, sdfs_str str);
+void sdfs_secetomsg(const sdfs_err err, const sdfs_pstr str);
 
 #endif
