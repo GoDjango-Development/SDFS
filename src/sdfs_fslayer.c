@@ -353,37 +353,37 @@ sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe)
 }
 
 /* integer error number to string message */
-void sdfs_fsetomsg(const sdfs_err err, sdfs_str str)
+void sdfs_fsetomsg(const sdfs_err err, const sdfs_pstr str)
 {
     switch (err) {
         case SDFS_FSSUCCESS:
-            strcpy(str, MSG_SUCCESS);
+            *str = MSG_SUCCESS;
             break;
         case SDFS_FSEEXIST:
-            strcpy(str, MSG_EEXIST);
+            *str = MSG_EEXIST;
             break;
         case SDFS_FSEACCESS:
-            strcpy(str, MSG_EACCESS);
+            *str = MSG_EACCESS;
             break;
         case SDFS_FSERROR:
-            strcpy(str, MSG_ERROR);
+            *str = MSG_ERROR;
             break;
         case SDFS_FSEIO:
-            strcpy(str, MSG_EIO);
+            *str = MSG_EIO;
             break;
         case SDFS_FSENOENT:
-            strcpy(str, MSG_ENOENT);
+            *str = MSG_ENOENT;
             break;
         case SDFS_FSERENAME:
-            strcpy(str, MSG_ERENAME);
+            *str = MSG_ERENAME;
             break;
         case SDFS_FSELISTDIR:
-            strcpy(str, MSG_ELISTDIR);
+            *str = MSG_ELISTDIR;
             break;
         case SDFS_FSERMDIR:
-            strcpy(str, MSG_ERMDIR);
+            *str = MSG_ERMDIR;
             break;
         default:
-            strcpy(str, MSG_ERROR);
+            *str = MSG_ERROR;
     }
 }

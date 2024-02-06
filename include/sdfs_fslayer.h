@@ -74,6 +74,6 @@ sdfs_err sdfs_rmkdir(const sdfs_str path);
 /* recursively try to remove directories */
 sdfs_err sdfs_rmdir_r(sdfs_str path, lsdir_mtsafe *mtsafe);
 /* integer error number to string message */
-void sdfs_fsetomsg(const sdfs_err err, sdfs_str str);
+void sdfs_fsetomsg(const sdfs_err err, const sdfs_pstr str);
 
 #endif
