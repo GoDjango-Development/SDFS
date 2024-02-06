@@ -16,6 +16,7 @@
 
 /* sdfs datatypes */
 typedef char *sdfs_str;
+typedef const char *sdfs_constr;
 typedef char **sdfs_pstr;
 typedef char sdfs_char;
 typedef int sdfs_err;
