@@ -47,7 +47,7 @@ sdfs_err sdfs_runop(sdfs_id id, sdfs_secop op, sdfs_buf buf);
 /* get fs layer last error */
 sdfs_err sdfs_getfserr(sdfs_id id);
 /* get fs layer last error message */
-sdfs_err sdfs_getfsmsg(sdfs_id id);
+sdfs_str sdfs_getfsmsg(sdfs_id id);
 /* integer error number to string message */
 void sdfs_secetomsg(const sdfs_err err, const sdfs_pstr str);
 

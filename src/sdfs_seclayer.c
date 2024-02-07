@@ -30,6 +30,7 @@ struct sdfs_id{
     sdfs_uid gid;
     sdfs_char inv;
     sdfs_err fserr;
+    sdfs_pstr fsmsg;
 };
 
 /* login recheck */
@@ -161,13 +162,17 @@ sdfs_err sdfs_runop(sdfs_id id, sdfs_secop op, sdfs_buf buf)
 /* get fs layer last error */
 sdfs_err sdfs_getfserr(sdfs_id id)
 {
-    
+    if (!id)
+        return SDFS_SECERROR;
+    return id->fserr;
 }
 
 /* get fs layer last error message */
-sdfs_err sdfs_getfsmsg(sdfs_id id)
+sdfs_str sdfs_getfsmsg(sdfs_id id)
 {
-    
+    if (!id)
+        return NULL;
+    return *id->fsmsg;
 }
 
 /* integer error number to string message */
