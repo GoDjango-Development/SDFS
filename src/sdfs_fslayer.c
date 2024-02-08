@@ -25,7 +25,7 @@
 #define MSG_ERMDIR "fs layer: file or directory cannot be removed"
 
 /* file creation function */
-sdfs_err sdfs_mkfile(sdfs_constr path)
+sdfs_err sdfs_fsmkfile(sdfs_constr path)
 {
     int fd = open(path, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
     if (fd == -1) {
@@ -44,7 +44,7 @@ sdfs_err sdfs_mkfile(sdfs_constr path)
 }
 
 /* directory creation function */
-sdfs_err sdfs_mkdir(sdfs_constr path)
+sdfs_err sdfs_fsmkdir(sdfs_constr path)
 {
     if (mkdir(path, S_IRWXU) == -1)
         switch (errno) {
@@ -59,7 +59,7 @@ sdfs_err sdfs_mkdir(sdfs_constr path)
 }
 
 /* file deletion function */
-sdfs_err sdfs_rmfile(sdfs_constr path)
+sdfs_err sdfs_fsrmfile(sdfs_constr path)
 {
     if (unlink(path) == -1)
         switch (errno) {
@@ -74,7 +74,7 @@ sdfs_err sdfs_rmfile(sdfs_constr path)
 }
 
 /* directory deletion function */
-sdfs_err sdfs_rmdir(sdfs_constr path)
+sdfs_err sdfs_fsrmdir(sdfs_constr path)
 {
     if (rmdir(path) == -1)
         return SDFS_FSERMDIR;
@@ -83,7 +83,7 @@ sdfs_err sdfs_rmdir(sdfs_constr path)
 
 /* this function may return the block of byte read or n <= -1. n <= -1 means
  * that an error has occured */
-sdfs_int64 sdfs_readblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
+sdfs_int64 sdfs_fsreadblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len)
 {
     int fd = open(path, O_RDONLY);
@@ -114,7 +114,7 @@ sdfs_int64 sdfs_readblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
 
 /* this function may return the number of bytes written or n <= -1. n <= -1
  * means that an error has occured */
-sdfs_int64 sdfs_writeblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
+sdfs_int64 sdfs_fswriteblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len)
 {
     int fd = open(path, O_WRONLY);
@@ -144,7 +144,7 @@ sdfs_int64 sdfs_writeblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
 }
 
 /* get file or directory statistic */
-sdfs_err sdfs_getstat(sdfs_constr path, sdfs_stat *stat_obj)
+sdfs_err sdfs_fsgetstat(sdfs_constr path, sdfs_fsstat *stat_obj)
 {
     if (stat(path, stat_obj) == -1)
         switch (errno) {
@@ -157,7 +157,7 @@ sdfs_err sdfs_getstat(sdfs_constr path, sdfs_stat *stat_obj)
 }
 
 /* rename file or directory from oldname to newname */
-sdfs_err sdfs_rename(sdfs_constr old_path, sdfs_constr new_path)
+sdfs_err sdfs_fsrename(sdfs_constr old_path, sdfs_constr new_path)
 {
     if (rename(old_path, new_path) == -1)
         switch (errno) {
@@ -176,13 +176,13 @@ sdfs_err sdfs_rename(sdfs_constr old_path, sdfs_constr new_path)
 }
 
 /* list directory function */
-sdfs_err sdfs_listdir(sdfs_constr path, sdfs_lsdir_clbk callback)
+sdfs_err sdfs_fslistdir(sdfs_constr path, sdfs_lsdir_clbk callback)
 {
     DIR *dd;
     dd = opendir(path);
     struct dirent *dir;
     char fpath[PATH_MAX];
-    sdfs_clbkctrl ctrl = SDFS_CLBKCTRL_CONT;
+    sdfs_fsclbkctrl ctrl = SDFS_FSCLBKCTRL_CONT;
     if (dd)
         while (1) {
             dir = readdir(dd);
@@ -193,7 +193,7 @@ sdfs_err sdfs_listdir(sdfs_constr path, sdfs_lsdir_clbk callback)
                     strcat(fpath, dir->d_name);
                     callback(fpath, &ctrl);
                 }
-                if (ctrl == SDFS_CLBKCTRL_STOP) {
+                if (ctrl == SDFS_FSCLBKCTRL_STOP) {
                     closedir(dd);
                     return SDFS_FSSUCCESS;   
                 }
@@ -216,7 +216,7 @@ sdfs_err sdfs_listdir(sdfs_constr path, sdfs_lsdir_clbk callback)
 }
 
 /* recursively directory list function */
-sdfs_err sdfs_listdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe,
+sdfs_err sdfs_fslistdir_r(sdfs_constr path, sdfs_fslsmtsafe *mtsafe,
     sdfs_lsdir_clbk callback)
 {
     DIR *dd;    
@@ -233,7 +233,7 @@ sdfs_err sdfs_listdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe,
     } else 
         dd = opendir(mtsafe->canonpath);
     struct dirent *dir;
-    sdfs_clbkctrl ctrl = SDFS_CLBKCTRL_CONT;
+    sdfs_fsclbkctrl ctrl = SDFS_FSCLBKCTRL_CONT;
     if (dd)
         while (1) {
             dir = readdir(dd);
@@ -242,7 +242,7 @@ sdfs_err sdfs_listdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe,
                 strcat(mtsafe->canonpath, dir->d_name);
                 if (callback)
                     callback(mtsafe->canonpath, &ctrl);
-                if (ctrl == SDFS_CLBKCTRL_STOP) {
+                if (ctrl == SDFS_FSCLBKCTRL_STOP) {
                     closedir(dd);
                     if (mtsafe->err)
                         return SDFS_FSELISTDIR;
@@ -251,7 +251,7 @@ sdfs_err sdfs_listdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe,
                 }
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, ".."))
-                    if (sdfs_listdir_r(mtsafe->canonpath, mtsafe, callback) !=
+                    if (sdfs_fslistdir_r(mtsafe->canonpath, mtsafe, callback) !=
                         SDFS_FSSUCCESS)
                         mtsafe->err++;
                 mtsafe->canonpath[strlen(mtsafe->canonpath) - 
@@ -278,7 +278,7 @@ sdfs_err sdfs_listdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe,
 }
 
 /* recursively create directory */
-sdfs_err sdfs_rmkdir(sdfs_constr path)
+sdfs_err sdfs_fsrmkdir(sdfs_constr path)
 {
     char cpath[PATH_MAX];
     strcpy(cpath, path);
@@ -297,7 +297,7 @@ sdfs_err sdfs_rmkdir(sdfs_constr path)
 }
     
 /* recursively try to remove directories */
-sdfs_err sdfs_rmdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe)
+sdfs_err sdfs_fsrmdir_r(sdfs_constr path, sdfs_fslsmtsafe *mtsafe)
 {
     DIR *dd;    
     if (!mtsafe->init) {
@@ -321,7 +321,7 @@ sdfs_err sdfs_rmdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe)
                 strcat(mtsafe->canonpath, dir->d_name);
                 if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") &&
                     strcmp(dir->d_name, "..")) {
-                    if (sdfs_rmdir_r(mtsafe->canonpath, mtsafe) !=
+                    if (sdfs_fsrmdir_r(mtsafe->canonpath, mtsafe) !=
                         SDFS_FSSUCCESS)
                         mtsafe->err++;
                 } else if (dir->d_type != DT_DIR)

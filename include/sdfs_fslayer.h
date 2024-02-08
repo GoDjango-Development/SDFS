@@ -22,13 +22,13 @@
 
 /* fs layer enumerations */
 
-enum sdfs_clbkctrl { 
-    SDFS_CLBKCTRL_STOP, SDFS_CLBKCTRL_CONT
+enum sdfs_fsclbkctrl { 
+    SDFS_FSCLBKCTRL_STOP, SDFS_FSCLBKCTRL_CONT
 };
 
 /* fs layer strcutres */
 
-struct lsdir_mtsafe {
+struct sdfs_fslsmtsafe {
     char canonpath[PATH_MAX];
     int init;
     sdfs_err err;
@@ -36,43 +36,43 @@ struct lsdir_mtsafe {
 
 /* fs layer specific datatypes */
 
-typedef struct stat sdfs_stat;
-typedef enum sdfs_clbkctrl sdfs_clbkctrl;
-typedef struct lsdir_mtsafe lsdir_mtsafe;
+typedef struct stat sdfs_fsstat;
+typedef enum sdfs_fsclbkctrl sdfs_fsclbkctrl;
+typedef struct sdfs_fslsmtsafe sdfs_fslsmtsafe;
 
 /* fs layer callbacks prototypes */
 
 /* list directory function callback. each call represents a new entry in the
  * directory. dir pointer will be null in the last callback invokation */
-typedef void (*sdfs_lsdir_clbk)(sdfs_constr ent, sdfs_clbkctrl *ctrl);
+typedef void (*sdfs_lsdir_clbk)(sdfs_constr ent, sdfs_fsclbkctrl *ctrl);
 
 /* file creation function */
-sdfs_err sdfs_mkfile(sdfs_constr path);
+sdfs_err sdfs_fsmkfile(sdfs_constr path);
 /* directory creation function */
-sdfs_err sdfs_mkdir(sdfs_constr path);
+sdfs_err sdfs_fsmkdir(sdfs_constr path);
 /* file deletion function */
-sdfs_err sdfs_rmfile(sdfs_constr path);
+sdfs_err sdfs_fsrmfile(sdfs_constr path);
 /* directory deletion function */
-sdfs_err sdfs_rmdir(sdfs_constr path);
+sdfs_err sdfs_fsrmdir(sdfs_constr path);
 /* read byte block from a file */
-sdfs_int64 sdfs_readblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
+sdfs_int64 sdfs_fsreadblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
 /* write byte block to a file */
-sdfs_int64 sdfs_writeblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
+sdfs_int64 sdfs_fswriteblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
     sdfs_int64 len);
 /* get file or directory statistic */
-sdfs_err sdfs_getstat(sdfs_constr path, sdfs_stat *stat_obj);
+sdfs_err sdfs_fsgetstat(sdfs_constr path, sdfs_fsstat *stat_obj);
 /* rename file or directory from oldname to newname */
-sdfs_err sdfs_rename(sdfs_constr old_path, sdfs_constr new_path);
+sdfs_err sdfs_fsrename(sdfs_constr old_path, sdfs_constr new_path);
 /* list directory function */
-sdfs_err sdfs_listdir(sdfs_constr path, sdfs_lsdir_clbk callback);
+sdfs_err sdfs_fslistdir(sdfs_constr path, sdfs_lsdir_clbk callback);
 /* recursively directory list function */
-sdfs_err sdfs_listdir_r(sdfs_constr path, lsdir_mtsafe *mtsafe, 
+sdfs_err sdfs_fslistdir_r(sdfs_constr path, sdfs_fslsmtsafe *mtsafe, 
     sdfs_lsdir_clbk callback);
 /* recursively create directory */
-sdfs_err sdfs_rmkdir(sdfs_constr path);
+sdfs_err sdfs_fsrmkdir(sdfs_constr path);
 /* recursively try to remove directories */
-sdfs_err sdfs_rmdir_r(sdfs_constr, lsdir_mtsafe *mtsafe);
+sdfs_err sdfs_fsrmdir_r(sdfs_constr, sdfs_fslsmtsafe *mtsafe);
 /* integer error number to string message */
 void sdfs_fsetomsg(const sdfs_err err, const sdfs_pstr str);
 

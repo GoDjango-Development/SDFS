@@ -30,24 +30,24 @@ typedef enum sdfs_secop sdfs_secop;
 
 /* obscure structure for user identity */
 
-typedef struct sdfs_fsid *sdfs_fsid;
+typedef struct sdfs_secid *sdfs_secid;
 
 /* initialize security layer */
-sdfs_err sdfs_secinit(sdfs_fsid *id, sdfs_str usrfile);
+sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile);
 /* login function */
-sdfs_err sdfs_seclogin(sdfs_fsid id, sdfs_str usr, sdfs_str pwd);
+sdfs_err sdfs_seclogin(sdfs_secid id, sdfs_str usr, sdfs_str pwd);
 /* logout function */
-void sdfs_seclogout(sdfs_fsid id);
+void sdfs_seclogout(sdfs_secid id);
 /* finalize security layer */
-void sdfs_secfin(sdfs_fsid id);
+void sdfs_secfin(sdfs_secid id);
 /* change file or directory access */
-sdfs_err sdfs_secchmod(sdfs_fsid id, sdfs_str path, sdfs_secmode mode);
+sdfs_err sdfs_secchmod(sdfs_secid id, sdfs_str path, sdfs_secmode mode);
 /* execute fs layer operation */
-sdfs_err sdfs_secrunop(sdfs_fsid id, sdfs_secop op, sdfs_buf buf);
+sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf);
 /* get fs layer last error */
-sdfs_err sdfs_secfserr(sdfs_fsid id);
+sdfs_err sdfs_secfserr(sdfs_secid id);
 /* get fs layer last error message */
-sdfs_str sdfs_secfsmsg(sdfs_fsid id);
+sdfs_str sdfs_secfsmsg(sdfs_secid id);
 /* integer error number to string message */
 void sdfs_secetomsg(const sdfs_err err, const sdfs_pstr str);
 

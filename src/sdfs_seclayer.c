@@ -22,7 +22,7 @@
 #define SC_USREND "\n"
 
 /* structure definition for user identity */
-struct sdfs_fsid {
+struct sdfs_secid {
     sdfs_char usrfile[PATH_MAX];
     sdfs_char usr[LINE_MAX];
     sdfs_char pwd[LINE_MAX];
@@ -34,12 +34,12 @@ struct sdfs_fsid {
 };
 
 /* login recheck */
-static sdfs_err sdfs_lrcheck(sdfs_fsid id);
+static sdfs_err sdfs_lrcheck(sdfs_secid id);
 
 /* initialize security layer */
-sdfs_err sdfs_secinit(sdfs_fsid *id, sdfs_str usrfile)
+sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile)
 {
-    *id = malloc(sizeof(sdfs_fsid));
+    *id = malloc(sizeof(sdfs_secid));
     if (!*id)
         return SDFS_SECEMEM;
     (*id)->id = SC_INVUSR;
@@ -49,7 +49,7 @@ sdfs_err sdfs_secinit(sdfs_fsid *id, sdfs_str usrfile)
 }
 
 /* login function */
-sdfs_err sdfs_seclogin(sdfs_fsid id, sdfs_str usr, sdfs_str pwd)
+sdfs_err sdfs_seclogin(sdfs_secid id, sdfs_str usr, sdfs_str pwd)
 {
     strcpy(id->usr, usr);
     strcpy(id->pwd, pwd);
@@ -57,19 +57,19 @@ sdfs_err sdfs_seclogin(sdfs_fsid id, sdfs_str usr, sdfs_str pwd)
 }
 
 /* logout function */
-void sdfs_seclogout(sdfs_fsid id)
+void sdfs_seclogout(sdfs_secid id)
 {
     id->id = SC_INVUSR;
 }
 
 /* finalize security layer */
-void sdfs_secfin(sdfs_fsid id)
+void sdfs_secfin(sdfs_secid id)
 {
     free(id);
 }
 
 /* login recheck */
-static sdfs_err sdfs_lrcheck(sdfs_fsid id)
+static sdfs_err sdfs_lrcheck(sdfs_secid id)
 {
     int fd = open(id->usrfile, O_RDONLY);
     if (fd == -1)
@@ -133,7 +133,7 @@ static sdfs_err sdfs_lrcheck(sdfs_fsid id)
 }
 
 /* change file or directory access */
-sdfs_err sdfs_secchmod(sdfs_fsid id, sdfs_str path, sdfs_secmode mode)
+sdfs_err sdfs_secchmod(sdfs_secid id, sdfs_str path, sdfs_secmode mode)
 {
     mode_t oldm = umask(0);
     if (!id || id->id == SC_INVUSR)
@@ -145,25 +145,25 @@ sdfs_err sdfs_secchmod(sdfs_fsid id, sdfs_str path, sdfs_secmode mode)
 }
 
 /* execute fs layer operation */
-sdfs_err sdfs_secrunop(sdfs_fsid id, sdfs_secop op, sdfs_buf buf)
+sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
 {
     if (!id || id->id == SC_INVUSR)
         return SDFS_SECELOGIN;
     switch (op) {
         case SDFS_SECOP_MKFILE:
-            if ((id->fserr = sdfs_mkfile(buf)) != SDFS_FSSUCCESS) {
+            if ((id->fserr = sdfs_fsmkfile(buf)) != SDFS_FSSUCCESS) {
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECERROR;
             }
             break;
         case SDFS_SECOP_MKDIR:
-            if ((id->fserr = sdfs_mkdir(buf)) != SDFS_FSSUCCESS) {
+            if ((id->fserr = sdfs_fsmkdir(buf)) != SDFS_FSSUCCESS) {
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECERROR;
             }
             break;
         case SDFS_SECOP_RMFILE:
-            if ((id->fserr = sdfs_rmfile(buf)) != SDFS_FSSUCCESS) {
+            if ((id->fserr = sdfs_fsrmfile(buf)) != SDFS_FSSUCCESS) {
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECERROR;
             }
@@ -174,7 +174,7 @@ sdfs_err sdfs_secrunop(sdfs_fsid id, sdfs_secop op, sdfs_buf buf)
 }
 
 /* get fs layer last error */
-sdfs_err sdfs_secfserr(sdfs_fsid id)
+sdfs_err sdfs_secfserr(sdfs_secid id)
 {
     if (!id)
         return SDFS_SECERROR;
@@ -182,7 +182,7 @@ sdfs_err sdfs_secfserr(sdfs_fsid id)
 }
 
 /* get fs layer last error message */
-sdfs_str sdfs_secfsmsg(sdfs_fsid id)
+sdfs_str sdfs_secfsmsg(sdfs_secid id)
 {
     if (!id)
         return NULL;
