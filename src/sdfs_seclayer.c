@@ -30,7 +30,7 @@ struct sdfs_id{
     sdfs_uid gid;
     sdfs_char inv;
     sdfs_err fserr;
-    sdfs_pstr fsmsg;
+    sdfs_str fsmsg;
 };
 
 /* login recheck */
@@ -145,22 +145,29 @@ sdfs_err sdfs_secchmod(sdfs_id id, sdfs_str path, sdfs_mode mode)
 }
 
 /* execute fs layer operation */
-sdfs_err sdfs_runop(sdfs_id id, sdfs_secop op, sdfs_buf buf)
+sdfs_err sdfs_secrunop(sdfs_id id, sdfs_secop op, sdfs_buf buf)
 {
     if (!id || id->id == SC_INVUSR)
         return SDFS_SECELOGIN;
-    
     switch (op) {
         case SDFS_SECOP_MKFILE:
-            if ((id->fserr = sdfs_mkfile(buf)) != SDFS_FSSUCCESS)
+            if ((id->fserr = sdfs_mkfile(buf)) != SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECERROR;
+            }
+            break;
+        case SDFS_SECOP_MKDIR:
+            if ((id->fserr = sdfs_mkdir(buf)) != SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
             break;
     }
     return SDFS_SECSUCCESS;
 }
 
 /* get fs layer last error */
-sdfs_err sdfs_getfserr(sdfs_id id)
+sdfs_err sdfs_secfserr(sdfs_id id)
 {
     if (!id)
         return SDFS_SECERROR;
@@ -168,11 +175,11 @@ sdfs_err sdfs_getfserr(sdfs_id id)
 }
 
 /* get fs layer last error message */
-sdfs_str sdfs_getfsmsg(sdfs_id id)
+sdfs_str sdfs_secfsmsg(sdfs_id id)
 {
     if (!id)
         return NULL;
-    return *id->fsmsg;
+    return id->fsmsg;
 }
 
 /* integer error number to string message */
