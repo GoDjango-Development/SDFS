@@ -5,6 +5,7 @@
 #define SECLAYER_H
 
 #include <sdfs_defs.h>
+#include <sdfs_fslayer.h>
 #include <limits.h>
 #include <inttypes.h>
 #include <sys/stat.h>
@@ -21,7 +22,7 @@
 /* security layer operation enumeration */
 enum sdfs_secop {
     SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE, SDFS_SECOP_RMDIR,
-    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK
+    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK, SDFS_SECOP_STAT
 };
 
 /* data structures for security layer operations */
@@ -33,6 +34,10 @@ struct sdfs_secblkop {
     sdfs_int64 len;
 };
 
+struct sdfs_secstat {
+    sdfs_str path;
+    sdfs_fsstat stat;
+};
 
 /* security layer specific datatypes */
 
@@ -45,6 +50,7 @@ typedef enum sdfs_secop sdfs_secop;
 /* obscure structure for user identity */
 typedef struct sdfs_secid *sdfs_secid;
 typedef struct sdfs_secblkop sdfs_secblkop;
+typedef struct sdfs_secstat sdfs_secstat;
 
 /* initialize security layer */
 sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile);

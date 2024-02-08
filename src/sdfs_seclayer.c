@@ -148,7 +148,7 @@ sdfs_err sdfs_secchmod(sdfs_secid id, sdfs_str path, sdfs_secmode mode)
 /* execute fs layer operation */
 sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
 {
-    if (!id || id->id == SC_INVUSR)
+    if (!id || !buf || id->id == SC_INVUSR)
         return SDFS_SECELOGIN;
     switch (op) {
         case SDFS_SECOP_MKFILE:
@@ -197,6 +197,13 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
                 id->fserr = SDFS_FSSUCCESS;
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECSUCCESS;
+            }
+            break;
+        case SDFS_SECOP_STAT:;
+            sdfs_secstat *st = buf;
+            if ((id->fserr = sdfs_fsgetstat(st->path, &st->stat)) != SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
             }
             break;
         default:
