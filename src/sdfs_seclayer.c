@@ -163,6 +163,7 @@ sdfs_err sdfs_secrunop(sdfs_id id, sdfs_secop op, sdfs_buf buf)
             }
             break;
     }
+    sdfs_fsetomsg(id->fserr, &id->fsmsg);
     return SDFS_SECSUCCESS;
 }
 
