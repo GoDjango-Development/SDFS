@@ -29,7 +29,6 @@ sdfs_err sdfs_fsmkfile(sdfs_constr path)
 {
     int fd = open(path, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
     if (fd == -1) {
-        close(fd);
         switch (errno) {
             case EACCES:
                 return SDFS_FSEACCESS;
