@@ -16,6 +16,7 @@
 #define MSG_EMEM "security layer: no memory available"
 #define MSG_ELOGIN "security layer: user cannot be loged-in"
 #define MSG_ERROR "security layer: operation failure"
+#define MSG_EOP "security layer: invalid specified operation"
 
 #define SC_INVUSR -1
 #define SC_USRSEP ":"
@@ -168,6 +169,28 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
                 return SDFS_SECERROR;
             }
             break;
+        case SDFS_SECOP_RMDIR:
+            if ((id->fserr = sdfs_fsrmdir(buf)) != SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
+            break;
+        case SDFS_SECOP_READBLK:;
+            sdfs_secblkop *op = buf;
+            if ((id->fserr = sdfs_fsreadblk(op->path, op->buf, op->offset, 
+                op->len)) <= SDFS_ERROR) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            } else {
+                id->fserr = SDFS_FSSUCCESS;
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECSUCCESS;
+            }
+            break;    
+        default:
+            id->fserr = SDFS_FSERROR;
+            sdfs_fsetomsg(id->fserr, &id->fsmsg);
+            return SDFS_SECEOP;
     }
     sdfs_fsetomsg(id->fserr, &id->fsmsg);
     return SDFS_SECSUCCESS;
@@ -201,6 +224,9 @@ void sdfs_secetomsg(const sdfs_err err, const sdfs_pstr str)
             break;
         case SDFS_SECELOGIN:
             *str = MSG_ELOGIN;
+            break;
+        case SDFS_SECEOP:
+            *str = MSG_EOP;
             break;
         default:
             *str = MSG_ERROR;

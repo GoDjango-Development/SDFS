@@ -16,11 +16,23 @@
 #define SDFS_SECEMEM -2
 #define SDFS_SECELOGIN -3
 #define SDFS_SECECHMOD -4
+#define SDFS_SECEOP -5
 
 /* security layer operation enumeration */
 enum sdfs_secop {
-    SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE
+    SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE, SDFS_SECOP_RMDIR,
+    SDFS_SECOP_READBLK
 };
+
+/* data structures for security layer operations */
+
+struct sdfs_secblkop {
+    sdfs_str path;
+    sdfs_buf buf;
+    sdfs_int64 offset;
+    sdfs_int64 len;
+};
+
 
 /* security layer specific datatypes */
 
@@ -28,9 +40,11 @@ typedef uint64_t sdfs_secuid;
 typedef mode_t sdfs_secmode;
 typedef enum sdfs_secop sdfs_secop;
 
-/* obscure structure for user identity */
+/* security layer datatype definitions */
 
+/* obscure structure for user identity */
 typedef struct sdfs_secid *sdfs_secid;
+typedef struct sdfs_secblkop sdfs_secblkop;
 
 /* initialize security layer */
 sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile);
