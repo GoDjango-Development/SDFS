@@ -21,7 +21,7 @@
 /* security layer operation enumeration */
 enum sdfs_secop {
     SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE, SDFS_SECOP_RMDIR,
-    SDFS_SECOP_READBLK
+    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK
 };
 
 /* data structures for security layer operations */

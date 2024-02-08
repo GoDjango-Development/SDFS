@@ -176,9 +176,9 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
             }
             break;
         case SDFS_SECOP_READBLK:;
-            sdfs_secblkop *op = buf;
-            if ((id->fserr = sdfs_fsreadblk(op->path, op->buf, op->offset, 
-                op->len)) <= SDFS_ERROR) {
+            sdfs_secblkop *blk = buf;
+            if ((id->fserr = sdfs_fsreadblk(blk->path, blk->buf, blk->offset, 
+                blk->len)) <= SDFS_ERROR) {
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECERROR;
             } else {
@@ -186,7 +186,19 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECSUCCESS;
             }
-            break;    
+            break;
+        case SDFS_SECOP_WRITEBLK:
+            blk = buf;
+            if ((id->fserr = sdfs_fswriteblk(blk->path, blk->buf, blk->offset, 
+                blk->len)) <= SDFS_ERROR) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            } else {
+                id->fserr = SDFS_FSSUCCESS;
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECSUCCESS;
+            }
+            break;
         default:
             id->fserr = SDFS_FSERROR;
             sdfs_fsetomsg(id->fserr, &id->fsmsg);
