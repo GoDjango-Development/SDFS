@@ -149,6 +149,8 @@ sdfs_err sdfs_fsgetstat(sdfs_constr path, sdfs_fsstat *stat_obj)
         switch (errno) {
             case ENOENT:
                 return SDFS_FSENOENT;
+            case EACCES:
+                return SDFS_FSEACCESS;
             default:
                 return SDFS_FSERROR;
         }
