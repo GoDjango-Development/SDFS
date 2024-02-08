@@ -46,14 +46,15 @@ sdfs_err sdfs_mkfile(sdfs_constr path)
 /* directory creation function */
 sdfs_err sdfs_mkdir(sdfs_constr path)
 {
-    switch (mkdir(path, S_IRWXU)) {
-        case EACCES:
-            return SDFS_FSEACCESS;
-        case EEXIST:
-            return SDFS_FSEEXIST;
-        default:
-            return SDFS_FSERROR;
-    }
+    if (mkdir(path, S_IRWXU) == -1)
+        switch (errno) {
+            case EACCES:
+                return SDFS_FSEACCESS;
+            case EEXIST:
+                return SDFS_FSEEXIST;
+            default:
+                return SDFS_FSERROR;
+        }
     return SDFS_FSSUCCESS;
 }
 
@@ -145,8 +146,7 @@ sdfs_int64 sdfs_writeblk(sdfs_constr path, sdfs_buf buf, sdfs_int64 offset,
 /* get file or directory statistic */
 sdfs_err sdfs_getstat(sdfs_constr path, sdfs_stat *stat_obj)
 {
-    int rc = stat(path, stat_obj);
-    if (rc == -1)
+    if (stat(path, stat_obj) == -1)
         switch (errno) {
             case ENOENT:
                 return SDFS_FSENOENT;
