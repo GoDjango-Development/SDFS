@@ -16,6 +16,7 @@
 #define MSG_EMEM "security layer: no memory available"
 #define MSG_ELOGIN "security layer: user cannot be loged-in"
 #define MSG_ERROR "security layer: operation failure"
+#define MSG_ECHMOD "security layer: unable to change permssions"
 #define MSG_EOP "security layer: invalid specified operation"
 
 #define SC_INVUSR -1
@@ -29,9 +30,9 @@ struct sdfs_secid {
     sdfs_char pwd[LINE_MAX];
     sdfs_secuid id;
     sdfs_secuid gid;
-    sdfs_char inv;
     sdfs_err fserr;
     sdfs_str fsmsg;
+    sdfs_time mtime;
 };
 
 /* login recheck */
@@ -44,7 +45,7 @@ sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile)
     if (!*id)
         return SDFS_SECEMEM;
     (*id)->id = SC_INVUSR;
-    (*id)->inv = 0;
+    (*id)->mtime = 0;
     strcpy((*id)->usrfile, usrfile);
     return SDFS_SECSUCCESS;
 }
@@ -72,14 +73,16 @@ void sdfs_secfin(sdfs_secid id)
 /* login recheck */
 static sdfs_err sdfs_lrcheck(sdfs_secid id)
 {
+    if (!id)
+        return SDFS_SECELOGIN;
+    struct stat st;
+    if (stat(id->usrfile, &st) == -1)
+        return SDFS_SECELOGIN;
+    if (id->id != SC_INVUSR && id->mtime == st.st_mtime)
+        return SDFS_SECSUCCESS;
     int fd = open(id->usrfile, O_RDONLY);
     if (fd == -1)
         return SDFS_SECELOGIN;
-    struct stat st;
-    if (stat(id->usrfile, &st) == -1) {
-        close(fd);
-        return SDFS_SECELOGIN;
-    }
     void *buf = malloc(st.st_size);
     if (!buf) {
         close(fd);
@@ -130,15 +133,16 @@ static sdfs_err sdfs_lrcheck(sdfs_secid id)
         return SDFS_SECELOGIN;
     id->id = pswd->pw_uid;
     id->gid = pswd->pw_gid;
+    id->mtime = st.st_mtime;
     return SDFS_SECSUCCESS;
 }
 
 /* change file or directory access */
 sdfs_err sdfs_secchmod(sdfs_secid id, sdfs_str path, sdfs_secmode mode)
 {
+    if (sdfs_lrcheck(id) != SDFS_SECSUCCESS)
+        return SDFS_SECELOGIN;
     mode_t oldm = umask(0);
-    if (!id || id->id == SC_INVUSR)
-        return SDFS_SECECHMOD;
     if (chmod(path, mode) == -1)
         return SDFS_SECECHMOD;
     umask(oldm);
@@ -148,8 +152,16 @@ sdfs_err sdfs_secchmod(sdfs_secid id, sdfs_str path, sdfs_secmode mode)
 /* execute fs layer operation */
 sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
 {
-    if (!id || !buf || id->id == SC_INVUSR)
+    if (sdfs_lrcheck(id) != SDFS_SECSUCCESS) {
+        id->fserr = SDFS_FSERROR;
+        sdfs_fsetomsg(id->fserr, &id->fsmsg);
         return SDFS_SECELOGIN;
+    }
+    if (!buf) {
+        id->fserr = SDFS_FSERROR;
+        sdfs_fsetomsg(id->fserr, &id->fsmsg);
+        return SDFS_FSERROR;
+    }
     switch (op) {
         case SDFS_SECOP_MKFILE:
             if ((id->fserr = sdfs_fsmkfile(buf)) != SDFS_FSSUCCESS) {
@@ -243,6 +255,9 @@ void sdfs_secetomsg(const sdfs_err err, const sdfs_pstr str)
             break;
         case SDFS_SECELOGIN:
             *str = MSG_ELOGIN;
+            break;
+        case SDFS_SECECHMOD:
+            *str = MSG_ECHMOD;
             break;
         case SDFS_SECEOP:
             *str = MSG_EOP;
