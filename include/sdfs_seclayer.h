@@ -44,6 +44,7 @@ struct sdfs_secstat {
 typedef uint64_t sdfs_secuid;
 typedef mode_t sdfs_secmode;
 typedef enum sdfs_secop sdfs_secop;
+typedef time_t sdfs_time;
 
 /* security layer datatype definitions */
 
