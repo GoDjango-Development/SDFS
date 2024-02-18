@@ -51,6 +51,8 @@ sdfs_err sdfs_fsmkdir(sdfs_constr path)
                 return SDFS_FSEACCESS;
             case EEXIST:
                 return SDFS_FSEEXIST;
+            case ENOENT:
+                return SDFS_FSENOENT;
             default:
                 return SDFS_FSERROR;
         }
@@ -282,7 +284,7 @@ sdfs_err sdfs_fslistdir_r(sdfs_constr path, sdfs_fslsmtsafe *mtsafe,
 }
 
 /* recursively create directory */
-sdfs_err sdfs_fsrmkdir(sdfs_constr path)
+sdfs_err sdfs_fsmkdir_r(sdfs_constr path)
 {
     char cpath[PATH_MAX];
     strcpy(cpath, path);
