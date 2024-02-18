@@ -70,7 +70,7 @@ sdfs_err sdfs_fslistdir(sdfs_constr path, sdfs_lsdir_clbk callback);
 sdfs_err sdfs_fslistdir_r(sdfs_constr path, sdfs_fslsmtsafe *mtsafe, 
     sdfs_lsdir_clbk callback);
 /* recursively create directory */
-sdfs_err sdfs_fsrmkdir(sdfs_constr path);
+sdfs_err sdfs_fsmkdir_r(sdfs_constr path);
 /* recursively try to remove directories */
 sdfs_err sdfs_fsrmdir_r(sdfs_constr, sdfs_fslsmtsafe *mtsafe);
 /* integer error number to string message */
