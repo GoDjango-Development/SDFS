@@ -213,7 +213,16 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
             break;
         case SDFS_SECOP_STAT:;
             sdfs_secstat *st = buf;
-            if ((id->fserr = sdfs_fsgetstat(st->path, &st->stat)) != SDFS_FSSUCCESS) {
+            if ((id->fserr = sdfs_fsgetstat(st->path, &st->stat)) !=
+                SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
+            break;
+        case SDFS_SECOP_RENAME:;
+            sdfs_secrename *ren = buf;
+            if ((id->fserr = sdfs_fsrename(ren->oldpath, ren->newpath)) !=
+                SDFS_FSSUCCESS) {
                 sdfs_fsetomsg(id->fserr, &id->fsmsg);
                 return SDFS_SECERROR;
             }
