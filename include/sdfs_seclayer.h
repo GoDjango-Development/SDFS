@@ -22,21 +22,29 @@
 /* security layer operation enumeration */
 enum sdfs_secop {
     SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE, SDFS_SECOP_RMDIR,
-    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK, SDFS_SECOP_STAT
+    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK, SDFS_SECOP_STAT, SDFS_SECOP_RENAME
 };
 
 /* data structures for security layer operations */
 
+/* data structure for read and write blocks to files */
 struct sdfs_secblkop {
-    sdfs_str path;
+    sdfs_path path;
     sdfs_buf buf;
     sdfs_int64 offset;
     sdfs_int64 len;
 };
 
+/* data structure for obtain statistic from a file or directory */
 struct sdfs_secstat {
-    sdfs_str path;
+    sdfs_path path;
     sdfs_fsstat stat;
+};
+
+/* data structure for renaming a file or directory */
+struct sdfs_secrename {
+    sdfs_path oldpath;
+    sdfs_path newpath;
 };
 
 /* security layer specific datatypes */
@@ -52,6 +60,7 @@ typedef time_t sdfs_time;
 typedef struct sdfs_secid *sdfs_secid;
 typedef struct sdfs_secblkop sdfs_secblkop;
 typedef struct sdfs_secstat sdfs_secstat;
+typedef struct sdfs_secrename sdfs_secrename;
 
 /* initialize security layer */
 sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile);
