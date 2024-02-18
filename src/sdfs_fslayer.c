@@ -179,8 +179,11 @@ sdfs_err sdfs_fsrename(sdfs_constr old_path, sdfs_constr new_path)
 /* list directory function */
 sdfs_err sdfs_fslistdir(sdfs_constr path, sdfs_lsdir_clbk callback)
 {
+    char canonpath[PATH_MAX];
+    if (!realpath(path, canonpath))
+        return SDFS_FSELISTDIR;
     DIR *dd;
-    dd = opendir(path);
+    dd = opendir(canonpath);
     struct dirent *dir;
     char fpath[PATH_MAX];
     sdfs_fsclbkctrl ctrl = SDFS_FSCLBKCTRL_CONT;
@@ -189,7 +192,7 @@ sdfs_err sdfs_fslistdir(sdfs_constr path, sdfs_lsdir_clbk callback)
             dir = readdir(dd);
             if (callback) {
                 if (dir) {
-                    strcpy(fpath, path);
+                    strcpy(fpath, canonpath);
                     strcat(fpath, "/");
                     strcat(fpath, dir->d_name);
                     callback(fpath, &ctrl);
