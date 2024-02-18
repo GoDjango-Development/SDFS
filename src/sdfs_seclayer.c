@@ -227,6 +227,30 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
                 return SDFS_SECERROR;
             }
             break;
+        case SDFS_SECOP_LSDIR:;
+            sdfs_seclsdir *lsdir = buf;
+            if ((id->fserr = sdfs_fslistdir(lsdir->path, lsdir->callback)) !=
+                SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
+            break;
+        case SDFS_SECOP_LSDIR_R:
+            lsdir = buf;
+            lsdir->mtsafe.init = 0;
+            lsdir->mtsafe.err = 0;
+            if ((id->fserr = sdfs_fslistdir_r(lsdir->path, &lsdir->mtsafe,
+                lsdir->callback)) != SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
+            break;
+        case SDFS_SECOP_MKDIR_R:
+            if ((id->fserr = sdfs_fsmkdir_r(buf)) != SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
+            break;
         default:
             id->fserr = SDFS_FSERROR;
             sdfs_fsetomsg(id->fserr, &id->fsmsg);

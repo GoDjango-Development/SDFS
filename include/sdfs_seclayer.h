@@ -22,7 +22,8 @@
 /* security layer operation enumeration */
 enum sdfs_secop {
     SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE, SDFS_SECOP_RMDIR,
-    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK, SDFS_SECOP_STAT, SDFS_SECOP_RENAME
+    SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK, SDFS_SECOP_STAT, SDFS_SECOP_RENAME,
+    SDFS_SECOP_LSDIR, SDFS_SECOP_LSDIR_R, SDFS_SECOP_MKDIR_R
 };
 
 /* data structures for security layer operations */
@@ -47,6 +48,13 @@ struct sdfs_secrename {
     sdfs_path newpath;
 };
 
+/* data structure for listing directory */
+struct sdfs_seclsdir {
+    sdfs_path path;
+    sdfs_lsdir_clbk callback;
+    sdfs_fslsmtsafe mtsafe;
+};
+
 /* security layer specific datatypes */
 
 typedef uint64_t sdfs_secuid;
@@ -58,9 +66,12 @@ typedef time_t sdfs_time;
 
 /* obscure structure for user identity */
 typedef struct sdfs_secid *sdfs_secid;
+
+/* structure typedefs for security layer operations */
 typedef struct sdfs_secblkop sdfs_secblkop;
 typedef struct sdfs_secstat sdfs_secstat;
 typedef struct sdfs_secrename sdfs_secrename;
+typedef struct sdfs_seclsdir sdfs_seclsdir;
 
 /* initialize security layer */
 sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile);
