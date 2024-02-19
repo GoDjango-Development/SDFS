@@ -23,7 +23,7 @@
 enum sdfs_secop {
     SDFS_SECOP_MKFILE, SDFS_SECOP_MKDIR, SDFS_SECOP_RMFILE, SDFS_SECOP_RMDIR,
     SDFS_SECOP_READBLK, SDFS_SECOP_WRITEBLK, SDFS_SECOP_STAT, SDFS_SECOP_RENAME,
-    SDFS_SECOP_LSDIR, SDFS_SECOP_LSDIR_R, SDFS_SECOP_MKDIR_R
+    SDFS_SECOP_LSDIR, SDFS_SECOP_LSDIR_R, SDFS_SECOP_MKDIR_R, SDFS_SECOP_RMDIR_R
 };
 
 /* data structures for security layer operations */
@@ -55,6 +55,12 @@ struct sdfs_seclsdir {
     sdfs_fslsmtsafe mtsafe;
 };
 
+/* data structure for recursively directory removing */
+struct sdfs_secrmdir_r {
+    sdfs_path path;
+    sdfs_fslsmtsafe mtsafe;
+};
+
 /* security layer specific datatypes */
 
 typedef uint64_t sdfs_secuid;
@@ -72,6 +78,7 @@ typedef struct sdfs_secblkop sdfs_secblkop;
 typedef struct sdfs_secstat sdfs_secstat;
 typedef struct sdfs_secrename sdfs_secrename;
 typedef struct sdfs_seclsdir sdfs_seclsdir;
+typedef struct sdfs_secrmdir_r sdfs_secrmdir_r;
 
 /* initialize security layer */
 sdfs_err sdfs_secinit(sdfs_secid *id, sdfs_str usrfile);

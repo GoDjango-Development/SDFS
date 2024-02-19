@@ -251,6 +251,16 @@ sdfs_err sdfs_secrunop(sdfs_secid id, sdfs_secop op, sdfs_buf buf)
                 return SDFS_SECERROR;
             }
             break;
+        case SDFS_SECOP_RMDIR_R:;
+            sdfs_secrmdir_r *rmd = buf;
+            rmd->mtsafe.init = 0;
+            rmd->mtsafe.err = 0;
+            if ((id->fserr = sdfs_fsrmdir_r(rmd->path, &rmd->mtsafe)) != 
+                SDFS_FSSUCCESS) {
+                sdfs_fsetomsg(id->fserr, &id->fsmsg);
+                return SDFS_SECERROR;
+            }
+            break;
         default:
             id->fserr = SDFS_FSERROR;
             sdfs_fsetomsg(id->fserr, &id->fsmsg);
